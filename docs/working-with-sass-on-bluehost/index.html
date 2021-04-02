@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>Working with SASS on Bluehost</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;louissimons.com&#x2F;main.css">
+
+    
+
+    
+    
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to content</a>
+    <div class="container">
+        <header> 
+            <h1 class="site-header">
+                <a href="https:&#x2F;&#x2F;louissimons.com">lack of focus</a>
+            </h1>
+            <nav>
+                
+                
+                
+                <a  href="https:&#x2F;&#x2F;louissimons.com&#x2F;about&#x2F;">About</a>
+                
+                
+            </nav>
+        </header>
+        <main id="main" tabindex="-1">
+            
+
+<article class="post">
+    <header>
+        <h1>Working with SASS on Bluehost</h1>
+    </header>
+    <div class="content">
+        <blockquote>
+<p>Note: This page is out of date, and I've gotten reports that Bluehost SSH no longer permits these steps. I've switched off Bluehost for a while now, so I don't have a way to provide updated instructions. Please use this information as a historical reference only!</p>
+</blockquote>
+<p>I’ve recently switched to WordPress since I was spending too much time configuring Drupal and not enough time making content.  I still prefer Drupal for sites that justify a CMS, but for a blog, why not use blogging software.  My biggest complaint with wordpress (other than The Loop) is how obviously WordPress most of the themes look.  I’m under no impressions that I can revolutionize WordPress aesthetics, but I figure I can make an obviously derivative theme on my own.</p>
+<p>After a quick search, it seems like the big names in starter themes are Underscores and Bones.  I chose to go forward with Bones because it provides a little more default styling than Underscores.  Rather than styling with CSS, Underscores heavily recommends that you compile your stylesheets from LESS or SASS.  Since I have more familiarity with SASS, I’m going to go down that road.  However, either language should be compiled server side.  This blog is a low traffic learning experience, so I’m going to do all of my theme editing live (or on a testing subdomain) and not hosted locally.  It’s not great practice.</p>
+<p>Anyway, lets work with SASS on Bluehost.  Our first step is to get SSH access to the Bluehost server.  You can request SSH access from the Bluehost cPanel. Once we have access to our account over SSH, we’ll need to install some gems.  Fortunately, Bluehost has the RubyGem package manager installed.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-sh" data-lang="sh"><span style="color:#bf616a;">gem</span><span style="color:#c0c5ce;"> install sass
+</span><span style="color:#bf616a;">gem</span><span style="color:#c0c5ce;"> install –version ‘</span><span style="color:#bf616a;">~</span><span style="color:#c0c5ce;">&gt; </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">.9′ rb-inotify </span><span style="color:#65737e;"># provides better performance when polling the filesystem for changed files
+</span></code></pre>
+<p>Now we watch the Bones library/scss folder for changes and automatically compile a new stylesheet:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-sh" data-lang="sh"><span style="color:#96b5b4;">cd
+</span><span style="color:#bf616a;">/wp-content/themes/
+sass</span><span style="color:#c0c5ce;"> –watch library/scss:library/css
+</span></code></pre>
+<p>If we’re successful, we can edit <code>_base.scss</code>, change the body background, and watch sass recompile.  Then refresh your demo site and see your changes.  For more information on Sass, check out the tutorial.</p>
+
+    </div>
+
+    
+    <div class="article-info">
+        
+        <div class="article-date">23 March 2013</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://louissimons.com/tags/linux/">#linux</a></li>
+                    
+                    <li><a href="https://louissimons.com/tags/bluehost/">#bluehost</a></li>
+                    
+                    <li><a href="https://louissimons.com/tags/sass/">#sass</a></li>
+                    
+                    <li><a href="https://louissimons.com/tags/wordpress/">#wordpress</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+</article>
+
+
+        </main>
+        <footer>
+            <p>
+                © lack of focus 2021<br>
+                Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
+            </p>
+            <p>
+                
+                
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

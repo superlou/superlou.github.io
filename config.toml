@@ -7,7 +7,14 @@ compile_sass = true
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = true
 
+title = "lack of focus"
 output_dir = "docs"
+theme = "anpu"
+
+taxonomies = [
+  { name = "categories" },
+  { name = "tags" },
+]
 
 [markdown]
 # Whether to do syntax highlighting
@@ -15,4 +22,6 @@ output_dir = "docs"
 highlight_code = true
 
 [extra]
-# Put all your custom variables here
+anpu_menu_links = [
+  { url = "$BASE_URL/about/", name="About" },
+]
