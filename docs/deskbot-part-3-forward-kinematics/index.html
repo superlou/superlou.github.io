@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>Deskbot Part 3, Forward Kinematics</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+
+    
+
+    
+
+
+<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.css">
+<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.js"></script>
+<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;auto-render.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false},
+            ]
+        });
+    });
+</script>
+
+
+
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to content</a>
+    <div class="container">
+        <header> 
+            <h1 class="site-header">
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+            </h1>
+            <nav>
+                
+                
+                
+                <a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+                
+                
+            </nav>
+        </header>
+        <main id="main" tabindex="-1">
+            
+
+<article class="post">
+    <header>
+        <h1>Deskbot Part 3, Forward Kinematics</h1>
+    </header>
+    <div class="content">
+        <p>The process of determining the state of the robot from the control inputs is the <a href="https://en.wikipedia.org/wiki/Forward_kinematics">forward kinematics</a>.  For a given set of 4 servo positions, we should be able to predict the orientation of all parts of the robot.</p>
+<span id="continue-reading"></span>
+<p>Here's our model of the robot head platform.  There's one more servo on top, but because that's a serial linkage, as opposed to the three parallel mechanisms at the base, we can account for that later.  The platform itself is an equilateral triangle.  While this arrangement could be generalized further, the following assumes that the base points also form an equilateral triangle, aligned with the platform.</p>
+<p><img src="https://superlou.github.io/deskbot-part-3-forward-kinematics/forward_kinematic_model.png" alt="forward kinematic model" /></p>
+<p>From the diagram, we see that for each hinged linkage from a servo to the platform, the three points - base $B_i$, knee $K_i$, and platform $P_i$ - move in a single plane.  The base points are at:</p>
+<p>$$B_i=\begin{bmatrix}b_{xi}\b_{yi}\0\end{bmatrix}=\begin{bmatrix}r_b cos(\theta_i)\r_b sin(\theta_i)\0\end{bmatrix}$$</p>
+<p>Knowing the three servo angles $\theta_i$, the knee points are analytically solvable with basic geometry.</p>
+<p>$$
+K_i= B_i +
+\begin{bmatrix}
+l cos(\pi+\theta_b) sin(\alpha_i) \\
+l sin(\pi+\theta_b) sin(\alpha_i) \\
+l sin(\alpha_i)
+\end{bmatrix}
+$$</p>
+<p>Likewise, if we know $\gamma_i$, the platform points are solvable:</p>
+<p>$$
+P_i= K_i +
+\begin{bmatrix}
+l cos(\pi+\theta_b) sin(\gamma_i) \\
+l sin(\pi+\theta_b) sin(\gamma_i) \\
+l sin(\gamma_i)
+\end{bmatrix}
+$$</p>
+<p>Now, the problem is, we don't know $\gamma_i$.  Fortunately, we can construct three equations to solve for these: the distance between any to $P_i$ is fixed by the geometry of the platform.  To use fsolve from SciPy's optimization package to solve simultaneous functions, we need to write a minimization function.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-python" data-lang="python"><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">DeskbotModel</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">object</span><span style="color:#eff1f5;">):
+    </span><span style="color:#d08770;">...
+
+    </span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">errors</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">p</span><span style="color:#c0c5ce;">):
+        gamma_0, gamma_1, gamma_2 = p
+        gamma = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([gamma_0, gamma_1, gamma_2])
+
+        </span><span style="color:#65737e;"># Determine positions of platform points
+        </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([
+            </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.k[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.m * np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(np.pi + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.theta_b) * np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(gamma),
+            </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.k[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.m * np.</span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(np.pi + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.theta_b) * np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(gamma),
+            </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.k[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.m * np.</span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(gamma),
+        ])
+
+        d01 = np.linalg.</span><span style="color:#bf616a;">norm</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">])
+        d12 = np.linalg.</span><span style="color:#bf616a;">norm</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">])
+        d20 = np.linalg.</span><span style="color:#bf616a;">norm</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])
+
+        </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">(d01 - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.d[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">], d12 - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.d[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">], d20 - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.d[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">])
+</span></code></pre>
+<p>The array of three gamma values is then found by <code>optimize.fsolve(self.errors, (1.57, 1.57, 1.57))</code>.  Our initial guesses are $\pi/2$, a 90 degree bend at each knee, in the hope of the solver picking the platform position above our global reference frame, as there is another solution (probably multiple).  After solving, we can then determine the location of all 3 platform points.  Everything after that is a little bit of vector math, but is simple serial links to solve for the geometry.</p>
+
+    </div>
+
+    
+    <div class="article-info">
+        
+        <div class="article-date">12 June 2015</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+</article>
+
+
+        </main>
+        <footer>
+            <p>
+                © lack of focus 2021<br>
+                Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
+            </p>
+            <p>
+                
+                
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>Kodi, Infrared Remote, and Cinnamon Linux 17.1</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+
+    
+
+    
+
+
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to content</a>
+    <div class="container">
+        <header> 
+            <h1 class="site-header">
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+            </h1>
+            <nav>
+                
+                
+                
+                <a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+                
+                
+            </nav>
+        </header>
+        <main id="main" tabindex="-1">
+            
+
+<article class="post">
+    <header>
+        <h1>Kodi, Infrared Remote, and Cinnamon Linux 17.1</h1>
+    </header>
+    <div class="content">
+        <p><a href="/low-cost-universal-remote-for-xbmc-on-ubuntu/">Back in 2013</a>, I programmed an <a href="http://www.amazon.com/gp/product/B0028IKXLS/ref=as_li_qf_sp_asin_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=B0028IKXLS&amp;linkCode=as2&amp;tag=louissimonsco-20">inexpensive media remote</a> to control XBMC on Ubuntu with the help of a <a href="http://www.amazon.com/gp/product/B001M56DI0/ref=as_li_qf_sp_asin_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=B001M56DI0&amp;linkCode=as2&amp;tag=louissimonsco-20">cheap infrared PC remote control</a>.  Since then, I’ve messed up that Ubuntu install pretty well, so updating seemed like a good idea.</p>
+<span id="continue-reading"></span>
+<p>I installed Linux Mint 17.1 and Kodi, the latest incarnation of XBMC.  Unfortunately, some of the media keys on the remote did not work, e.g. play.  Whenever I pressed them, I received a do-not-enter circle-cross symbol whether or not Kodi was running.  Eventually, I found that the media keys worked properly for Banshee, and this lead me down the path the Mint was consuming the commands.  Eventually, I found a <a href="http://forum.kodi.tv/showthread.php?tid=215696&amp;highlight=media+key">posting that resolved the issue by clearing out Mint’s keyboard shortcuts</a>.</p>
+<h1 id="how-to-fix-it">How to Fix It</h1>
+<p>Screenshot from 2015-01-27 16:29:21In the Linux Mint 17.1 settings, any assigned keyboard shortcuts prevent Kodi from seeing the remote commands.  I cleared out all of the keyboard shortcuts under “Sound and Media” as “Launch email client” from the “Launchers” category.  The shortcuts configuration window is available from System Settings &gt; Keyboard in the Keyboard Shortcuts tab.</p>
+<p><img src="https://superlou.github.io/kodi-infrared-remote-and-cinnamon-linux-17-1/Screenshot-from-2015-01-27-162921-300x230.png" alt="Keyboard settings" /></p>
+<p>After this, all of the shortcuts from my earlier post work.</p>
+<p>The shortcut configuration window is actually a screenshot from Mint 17, but it’s nearly identical on 17.1.</p>
+
+    </div>
+
+    
+    <div class="article-info">
+        
+        <div class="article-date">27 January 2015</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://superlou.github.io/tags/linux/">#linux</a></li>
+                    
+                    <li><a href="https://superlou.github.io/tags/kodi/">#kodi</a></li>
+                    
+                    <li><a href="https://superlou.github.io/tags/mint/">#mint</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+</article>
+
+
+        </main>
+        <footer>
+            <p>
+                © lack of focus 2021<br>
+                Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
+            </p>
+            <p>
+                
+                
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

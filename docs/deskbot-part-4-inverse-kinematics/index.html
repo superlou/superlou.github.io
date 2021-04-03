@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>Deskbot Part 4, Inverse Kinematics</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+
+    
+
+    
+
+
+<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.css">
+<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.js"></script>
+<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;auto-render.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false},
+            ]
+        });
+    });
+</script>
+
+
+
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to content</a>
+    <div class="container">
+        <header> 
+            <h1 class="site-header">
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+            </h1>
+            <nav>
+                
+                
+                
+                <a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+                
+                
+            </nav>
+        </header>
+        <main id="main" tabindex="-1">
+            
+
+<article class="post">
+    <header>
+        <h1>Deskbot Part 4, Inverse Kinematics</h1>
+    </header>
+    <div class="content">
+        <p>Unfortunately for us, forward kinematics doesn't let our robot control itself.  To determine the servo positions that achieve a robot position, we need <a href="https://en.wikipedia.org/wiki/Inverse_kinematics">inverse kinematics</a>.</p>
+<span id="continue-reading"></span>
+<p>In a perfect world, there is an analytical function that takes a robot state as input variables and spits out servo positions.  Even if you can't come up with a simple analytical solution, if you have a fast solution to the forward kinematis, you can use something like <a href="https://en.wikipedia.org/wiki/Coordinate_descent">coordinate descent</a> or <a href="https://en.wikipedia.org/wiki/Particle_swarm_optimization">particle swarm optimization</a>.  These techniques provide efficient numerical solutions with large numbers of dependent variables.</p>
+<p>Doubly unfortunate, we only have a numerical forward kinematics solution, and a fairly slow one for the Raspberry Pi.  If you were to use one of those previous optimization techniques, you end up with solvers of solvers which quickly bottleneck a real-time robot.  Neural networks could be an interesting solution, but the Rapspberry Pi isn't well suited to parallelizing mathematics, and my early attempts ran into issues because of the periodicity of servo solutions.  Rather than learning how to contrain the learning functions, let's try another approach.</p>
+<h1 id="constraints">Constraints</h1>
+<p>The platform of the Deskbot, the head, is modeled as an equilateral triangle, with each point connected on hinged joints to a servo.  Because of the geometry of the hinges, each point is constrained to moving in a plane.</p>
+<p><img src="https://superlou.github.io/deskbot-part-4-inverse-kinematics/constrains.png" alt="Constraint planes" /></p>
+<p>The red hinges and platform points are constrained to the red plane, the blue and green planes, likewise.</p>
+<h1 id="platform-inverse-kinematics">Platform Inverse Kinematics</h1>
+<p>Now we need a way to mathematically describe the desired state of the robot.</p>
+<p><img src="https://superlou.github.io/deskbot-part-4-inverse-kinematics/head_ik_model.png" alt="Head IK model" /></p>
+<p>We are limiting our IK model to just the head for now.  The three points, $P_{1,2,3}$, are the corners of the equilateral triangle that make up the platform.  $P_C$ is the centroid of the platform.  Point $N$ is straight up from the centroid.  Perpendicular to $N$ and in the plane of the platform, vector $\vec{e}$ represents the direction the eyes of the robot are looking.  $\vec{f}$ is the left-ear, and must always be 90 degrees from $\vec{e}$.  We use the left ear so that our system follows right-hand rule: when we use unit vectors for the eye and ear, their cross product will point upwards and produce a unit vector perpendicular to both.  This new perpendicular unit vector is scaled by the length of the &quot;neck&quot; to produce $N$.  The really great thing about these two vectors is that they give references we can rotate around that are natural: tilting the head up and down regardless of the direction it is looking is a rotation about the ear vector, and canting the head is a rotation about the eye vector.</p>
+<p>Our solution will work backwards.  We want to achieve a $\vec{e}$ and $\vec{f}$ and care only about the z position of $N$.  Moving $\vec{e}$ and $\vec{f}$ around rotates our platform in space, however the platform's points must still lie in their limited planes of motions.  Shifting the platform points back to achievable positions is mostly translation, but also causes a rotation.  $\theta$ provides a necessary degree of freedom so that the eye and ear vectors can be achieve while still keeping the platform on it's planar &quot;rails.&quot;  We assume there is a $P_c$ and $\theta$ that aligns the platform in an achievable position while satisfying the eye and ear vectors.</p>
+<p>Giving up on doing this analytically, let's go back to using a solver.  Our error function seek to solve 4 equations for zero: the distance of a platform point to a plane (three of these), and the difference between the z-coordinate of $N$ and our desired height.  In python, that looks like this:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-python" data-lang="python"><span style="color:#c0c5ce;">    </span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">errors</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">x</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">rot_mat</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">tan60</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">e_v</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">n_v</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">h</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">l</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">n</span><span style="color:#c0c5ce;">):
+        theta, px, py, pz = x
+
+        </span><span style="color:#65737e;"># Because n_v is fixed, after finding p0, a precomputed
+        # rotation matrix can be used to find p1 and p2.
+        </span><span style="color:#c0c5ce;">p0_v = </span><span style="color:#bf616a;">rotate_vector</span><span style="color:#c0c5ce;">(l * e_v, n_v, -theta)
+        p1_v = np.</span><span style="color:#bf616a;">dot</span><span style="color:#c0c5ce;">(rot_mat, p0_v)
+        p2_v = np.</span><span style="color:#bf616a;">dot</span><span style="color:#c0c5ce;">(rot_mat, p1_v)
+
+        pc = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([px, py, pz])
+        p0 = p0_v + pc
+        p1 = p1_v + pc
+        p2 = p2_v + pc
+
+        n_p = pc + n * n_v
+
+        </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">point_line_distance</span><span style="color:#c0c5ce;">(p0, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">),
+                </span><span style="color:#bf616a;">point_line_distance</span><span style="color:#c0c5ce;">(p1, -tan60),
+                </span><span style="color:#bf616a;">point_line_distance</span><span style="color:#c0c5ce;">(p2, tan60),
+                n_p[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] - h)
+</span></code></pre>
+<p>Each solver iteration receives list <code>x</code>, which is composed of the $\theta$ and the coordinates of $P_c$.  The rest of the arguments are constants:</p>
+<ul>
+<li><code>rot_mat</code> - a rotational matrix used to get $\vec{p_1}$ and $\vec{p_2}$ from $\vec{p_0}$.  Since $\vec{e}$ and $\vec{f}$ are known and fixed unit vectors, $\vec{n}$ can be determined by $\vec{e}\times\vec{f}$.  The rotational matrix rotates a vector around $\vec{n}$ by 120 degrees.</li>
+<li><code>tan60</code> - Simply the value of $\tan(60)$ to save on some computation.  This is used to construct the planes that the platform points are constrained in.</li>
+<li><code>e_v</code> and <code>f_v</code> - the eye and ear vectors</li>
+<li><code>h</code> - The desired z-position (height) of the point that the eye and ear vectors originate from</li>
+<li><code>l</code> - the length of the $\vec{p_{0,1,2}}$ vectors.  This is the distance from $P_c$ to any $P_{0,1,2}$.</li>
+<li><code>n</code> - the length of $\vec{n}$, the neck.  This is the distance from $P_c$ to $N$.</li>
+</ul>
+<p>A magic function called <code>rotate_vector</code> rotates a vector about another vector by a radian value:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">rotate_vector</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">vector</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">axis</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">angle</span><span style="color:#c0c5ce;">):
+    </span><span style="color:#65737e;">&quot;&quot;&quot;
+    Uses Rodrigues rotation formula
+    axis must be a normal vector
+    &quot;&quot;&quot;
+    </span><span style="color:#c0c5ce;">k = axis
+    v = vector
+    v_rot = (v * np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle) + np.</span><span style="color:#bf616a;">cross</span><span style="color:#c0c5ce;">(k, v) * np.</span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(angle) +
+             k * (np.</span><span style="color:#bf616a;">dot</span><span style="color:#c0c5ce;">(k, v)) * (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">- np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle)))
+
+    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">v_rot
+</span></code></pre>
+<p>The point-line distance is a simplification of the problem of finding the distance between a point and a plane.  Since our planes our parallel with the z-axis, we can flatten the point and plane into the X-Y plane for the sake of minimizing their distances.   The function looks like this:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">point_line_distance</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">point</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">line_slope</span><span style="color:#c0c5ce;">):
+    </span><span style="color:#65737e;">&quot;&quot;&quot;
+    Based on https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+    Assumes line passes through zero
+    Let b = 1
+    &quot;&quot;&quot;
+    </span><span style="color:#c0c5ce;">x0 = point[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">]
+    y0 = point[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">]
+    a = -line_slope
+
+    distance = np.</span><span style="color:#bf616a;">abs</span><span style="color:#c0c5ce;">(a * x0 + y0) / np.</span><span style="color:#bf616a;">sqrt</span><span style="color:#c0c5ce;">(a ** </span><span style="color:#d08770;">2 </span><span style="color:#c0c5ce;">+ </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">)
+    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">distance
+</span></code></pre>
+<p>The error function is minimized using trusty <code>fsolve</code> and an initial estimate for the same list of variables <code>x</code> we saw before:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-python" data-lang="python"><span style="color:#c0c5ce;">        theta_init = np.</span><span style="color:#bf616a;">arctan2</span><span style="color:#c0c5ce;">(e_v[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">], e_v[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])
+        pz_init = </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.h - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.n
+		estimate = [theta_init, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, pz_init]
+        x = optimize.</span><span style="color:#bf616a;">fsolve</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.errors, estimate, </span><span style="color:#bf616a;">args</span><span style="color:#c0c5ce;">=(
+            rot_mat, tan60, e_v, n_v, </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.h, </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.l, </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.n
+        ))
+</span></code></pre>
+<p>Since our head is going to mostly be &quot;flat,&quot; a good estimate is that $\theta$ is the same as the desired direction of the eye vector, and the z-coordinate of $P_c$ will simply be the difference between the desired height and the neck length.  As the head tilts more, these estimates aren't great, but we'll address that if it becomes an issue.</p>
+<p>Now, the only tricky part is creating valid eye and ear vectors.  The simplest way is to start with a pair of unit vectors in global coordinates.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-python" data-lang="python"><span style="color:#c0c5ce;">gx_v = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])  </span><span style="color:#65737e;"># global X-axis unit vector
+</span><span style="color:#c0c5ce;">gy_v = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])  </span><span style="color:#65737e;"># global Y-axis unit vector
+</span><span style="color:#c0c5ce;">gz_v = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">])  </span><span style="color:#65737e;"># global Z-axis unit vector
+
+</span><span style="color:#c0c5ce;">e_v = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])   </span><span style="color:#65737e;"># initial eye vector, looking down the x-axis
+</span><span style="color:#c0c5ce;">f_v = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])   </span><span style="color:#65737e;"># initial left-ear vector, listening down the y-axis
+
+# turn the head 20 degrees left
+</span><span style="color:#c0c5ce;">e_v = </span><span style="color:#bf616a;">rotate_vector</span><span style="color:#c0c5ce;">(e_v, gz_v, </span><span style="color:#bf616a;">radians</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">20</span><span style="color:#c0c5ce;">))
+f_v = </span><span style="color:#bf616a;">rotate_vector</span><span style="color:#c0c5ce;">(f_v, gz_v, </span><span style="color:#bf616a;">radians</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">20</span><span style="color:#c0c5ce;">))
+
+</span><span style="color:#65737e;"># tilt the head up 30 degrees (no effect on f_v)
+</span><span style="color:#c0c5ce;">e_v = </span><span style="color:#bf616a;">rotate_vector</span><span style="color:#c0c5ce;">(e_v, f_v, </span><span style="color:#bf616a;">radians</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">30</span><span style="color:#c0c5ce;">))
+
+</span><span style="color:#65737e;"># cant the head to the right 15 degrees (no effect on e_v)
+</span><span style="color:#c0c5ce;">f_v = </span><span style="color:#bf616a;">rotate_vector</span><span style="color:#c0c5ce;">(f_v, e_v, </span><span style="color:#bf616a;">radians</span><span style="color:#c0c5ce;">(-</span><span style="color:#d08770;">15</span><span style="color:#c0c5ce;">))
+</span></code></pre>
+<p>When our solver finishes, we will have $\theta$ and $P_c$ that positions the platform so that the eye and ear vectors are satisfied.  From these values, we can use geometry to determine $P_{0,1,2}$.  Since these points must lie in the planes that the servos can move the points in, we simply need an algorithm to determine the servo angles to achieve each point.  The constrains of the system will then fix up the platform in our desired position.</p>
+<h1 id="leg-inverse-kinematics">Leg Inverse Kinematics</h1>
+<p>Can't skip leg day.  Since we're assuming the parallel linkages of the servo &quot;legs&quot; and the platform will constrain the system, we can look at each servo base-knee-platform linkage individual.  We can simplify the 3D problem into a 2D one:</p>
+<p><img src="https://superlou.github.io/deskbot-part-4-inverse-kinematics/leg_solutions.png" alt="Leg solutions" /></p>
+<p>Even discounting the periodic nature of rotational joints, their can be multiple solutions: one with the knee flexing up, one with the knee flexing down.  To solve each linkage, lets take advantage of the 2D simplification.  Before we solve any anything, we'll translate and rotate the linkage so that the base is at $(0,0)$ and the motion is only in the x-z plane.</p>
+<p><img src="https://superlou.github.io/deskbot-part-4-inverse-kinematics/leg_model.png" alt="Leg model" /></p>
+<p>I apologize for the sloppy naming of axes and variables with the same notation.  The important thing is that we can construct two equations with two unknowns for this geometry:</p>
+<p>$$
+lcos(\alpha) + mcos(\beta) = x \\
+lsin(\alpha) + msin(\beta) = z
+$$</p>
+<p>We primarily want to solve for $\alpha$, since that will be the servo angle in the linkage, unaffected by our reduction of the problem's dimensions.  Solving, we end up with:</p>
+<p>$$
+(m^2 - l^2 - x^2 - z^2) + 2xlcos(\alpha) + 2zlsin(\alpha) = 0
+$$</p>
+<p>There are some nice symmatries of terms giving us a good feeling about the equation.  We define some helper variables:</p>
+<p>$$
+a = m^2 - l^2 - x^2 - z^2 \\
+b = 2xl \\
+c = 2zl \\
+a + b cos(\alpha) + c sin(\alpha) = 0
+$$</p>
+<p>However, to continue solving, we employ <a href="https://en.wikipedia.org/wiki/Tangent_half-angle_substitution">the world's sneakiest substitution</a>:</p>
+<p>$$
+t = tan(\frac{\alpha}{2}) \\
+sin(\alpha)=\frac{2t}{1+t^2} \\
+cos(\alpha)=\frac{1-t^2}{1+t^2}
+$$</p>
+<p>Making the substitution, we eventually end up with:</p>
+<p>$$
+\frac{(a-b)t^2 + 2ct + (a+b)}{1+t^2} = 0
+$$</p>
+<p>Since $t$ can't ever be imaginary, there's no worries about poles in the denominator.  The solutions in the numerator can be solved by the quadratic equation, which conveniently gives two solutions and smells right given the expected solutions.  We will only take the smaller of the two solutions, since that is the one with the join flexing upwards, keeping the linkages &quot;inside&quot; the body of the robot for more states.</p>
+<h1 id="trying-it-out">Trying It Out</h1>
+<p>For those still following at home, here's what we're going to do:</p>
+<ol>
+<li>Choose an eye vector, ear vector, and height of the head.</li>
+<li>Determine a platform position that can achieve this given the constraints plaftform points must move in their planes.</li>
+<li>Determine the servo angle that makes it possible for the platform point to be in the proper spot.</li>
+<li>Let the constraints of the parallel linkages and platform do the rest.</li>
+</ol>
+<p>I made a quick program that lets me rotate, tilt, cant, and raise/lower the head using keyboard inputs.</p>
+<iframe src="https://player.vimeo.com/video/149230125" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<p>In the first couple seconds, we increase the height of the head, then tilt the eyes up around the ear vector.  As the head rotates around the global z-azis, the eye vector remains tilted upwards.  Having rotated, we can tilt the eyes down and rotate back.  Then we can't the head along the eye vector for the fun of it.  Each individual motion transforms the desired state of the robot, then solves the IK problems to achieve it.</p>
+<p>Why does the head tilt a little as we perform the rotation?  It's very likely that the cardboard and hacked parts don't perfectly meet the model dimensions.  We'll have to address that later, but for now, this seems like a decent proof-of-concept.</p>
+
+    </div>
+
+    
+    <div class="article-info">
+        
+        <div class="article-date">16 December 2015</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+</article>
+
+
+        </main>
+        <footer>
+            <p>
+                © lack of focus 2021<br>
+                Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
+            </p>
+            <p>
+                
+                
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

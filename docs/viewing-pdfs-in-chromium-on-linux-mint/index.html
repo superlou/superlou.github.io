@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>Viewing PDFs in Chromium on Linux Mint</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+
+    
+
+    
+
+
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to content</a>
+    <div class="container">
+        <header> 
+            <h1 class="site-header">
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+            </h1>
+            <nav>
+                
+                
+                
+                <a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+                
+                
+            </nav>
+        </header>
+        <main id="main" tabindex="-1">
+            
+
+<article class="post">
+    <header>
+        <h1>Viewing PDFs in Chromium on Linux Mint</h1>
+    </header>
+    <div class="content">
+        <p>Since the PDF library is not free software, it isn’t included with the distribution of Chromium. To get PDF support in Chromium:</p>
+<span id="continue-reading"></span>
+<p>Download the appropriate DEB package for your system from the google chrome download page.  Using the archive manager, extract libpdf.so from /opt/google/chrome/.  I extracted the file to my desktop.  Copy the library into your chromium installation libs:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-sh" data-lang="sh"><span style="color:#bf616a;">sudo</span><span style="color:#c0c5ce;"> cp </span><span style="color:#bf616a;">~</span><span style="color:#c0c5ce;">/Desktop/libpdf.so /usr/lib/chromium-browser
+</span></code></pre>
+<p>Restart Chromium if you have it open, and verify that the Chrome PDF Viewer is enabled via about:plugins in the URL bar.</p>
+<p>Source: http://askubuntu.com/questions/12584/why-doesnt-chromium-have-chrome-pdf-viewer-plugin</p>
+
+    </div>
+
+    
+    <div class="article-info">
+        
+        <div class="article-date">17 March 2013</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://superlou.github.io/tags/linux/">#linux</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+</article>
+
+
+        </main>
+        <footer>
+            <p>
+                © lack of focus 2021<br>
+                Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
+            </p>
+            <p>
+                
+                
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>Implementing Comparators with Hysteresis</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+
+    
+
+    
+
+
+<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.css">
+<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.js"></script>
+<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;auto-render.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false},
+            ]
+        });
+    });
+</script>
+
+
+
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to content</a>
+    <div class="container">
+        <header> 
+            <h1 class="site-header">
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+            </h1>
+            <nav>
+                
+                
+                
+                <a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+                
+                
+            </nav>
+        </header>
+        <main id="main" tabindex="-1">
+            
+
+<article class="post">
+    <header>
+        <h1>Implementing Comparators with Hysteresis</h1>
+    </header>
+    <div class="content">
+        <p>You need to implement a comparator circuit with hysteresis, and you pull up some app notes.  They look something like this, <a href="http://www.analog.com/library/analogdialogue/archives/34-07/comparators/">credit to Analog Devices</a>:</p>
+<p><img src="https://superlou.github.io/implementing-comparators-with-hysteresis/single_supply_comparators.png" alt="comparator schematics" /></p>
+<span id="continue-reading"></span>
+<p>If you have a circuit in hand, there are a dozen or so discussions online to determine the comparator’s characteristics: high threshold $V_{TH}$, low threshold $V_{TL}$, and hysteresis $V_{HYST}$.  We asume that $R_{PULL-UP}$ is reasonably small compared to the feedback network so that $V_{OH}$ is fixed.  These equations are pretty easy to derive yourself from basic circuit principles, but it’s a time saver to have them available.  Now, if you want to design your comparator circuit, and already know it’s characteristics, you have to either guess and check values, implement a solver, or do some basic algebra to solve the equations to get the resistor values in terms of the comparator’s characteristics.  Every time I do this, I lose my notes, so this time, they’re going online.</p>
+<p>Assumptions</p>
+<p>Going into these solutions, we’re going to assume that the circuit designer knows the following:</p>
+<ul>
+<li>$V_{TH}$</li>
+<li>$V_{TL}$</li>
+<li>$V_{HYST}$ – the difference between $V_{TH}$ and $V_{TL}$</li>
+<li>$V_{OH}$ – the voltage at pin 2 when the output is high.  For comparators with an open-comparator output and a small $R_{PULL-UP}$ with respect to the feedback network, this will be $V_{PULL-UP}$</li>
+<li>$V_{OL}$ – the voltage at pin 2 when the output is low.  For comparators with an open-ground output, this will be 0 or near 0.
+I’m going to assume that $V_{PULL-UP}$ is tied to $V_{CC}$.</li>
+</ul>
+<p>Also, you will be picking some resistor values to make the equations solvable.  They are somewhat arbitrary, but should be chosen as a trade-off between wasting current making the feed-back network to small with respect to $V_{PULL-UP}$.  If you are designing on a PCB, choosing resistors that are too large may lead to PCB leakage having a significant effect on accuracy.</p>
+<p>Single-supply Noninverting Hysteresis</p>
+<p>This is the easiest of the two comparator types because the hysteresis equation is dependent only on $R_3$ and $R_4$.  Choosing an arbitrary $R_3$, we have:</p>
+<p>$$
+R_4 = \frac{R_3(V_{OH}-V_{OL})}{R_4}
+$$</p>
+<p>Then, we can do some math to determine $V_{REF}$ as a function of the trip-point, which is halfway between $V_{TH}$ and $V_{TL}$.  Note that $V_{REF}$ is not the same as $V_{TRIP}$.</p>
+<p>$$
+V_{REF} = \frac{ 2 R_4 V_{TRIP} + R_3(V_{OH}+V_{OL}) }{ 2R_3 + 2 R_4 }
+$$</p>
+<p>Once you have $V_{REF}$, finding $R1$ and $R2$ is just solving a voltage divider.  Choosing an arbitrary $R1$:</p>
+<p>$$
+R_2 = R_1\left(\frac{V_{CC}}{V_{REF}}-1\right)
+$$</p>
+<p>Single-supply Inverting Hysteresis</p>
+<p>This one is more aggravating because the hysteresis feedback and trip voltage networks interact.  The trick (there might be a better one) is to rearrange $V_{TL}$ and $V_{TH}$ like so:</p>
+<p>$$
+V_{TH} = \frac{R_1 R_3 V_{CC} + R_1 R_2 V_{OH}}{R_1 R_2 + R_1 R_3 + R_2 R_3}
+V_{TL} = \frac{R_1 R_3 V_{CC} + R_1 R_2 V_{OL}}{R_1 R_2 + R_1 R_3 + R_2 R_3}
+$$</p>
+<p>Then you can divide these equations to end up with $R_2$ and $R_3$ being your only unknowns:</p>
+<p>$$
+\frac{V_{TH}}{V_{TL}} = \frac{ R_3 V_{CC} + R_2 V_{OH} }{ R_3 V_{CC} + R_2 V_{OL} }
+$$</p>
+<p>You end up with:</p>
+<p>$$
+R_3 = \frac{R_2(V_{TL}V_{OH}-V_{TH}V_{OL})}{ V_{CC}(V_{TH} – V_{TL}) }
+$$</p>
+<p>We can use this relationship to find $R_2$ in terms of only $R_1$:</p>
+<p>$$
+R_2 = R_1 \left[\frac{V_{CC}V_{HYST}(V_{OL}-V_{TL})}{V_{TL}(V_{TL}V_{OH}-V_{TH}V_{OL})}+\frac{V_{CC} – V_{TL}}{V_{TL}}\right]
+$$</p>
+<p>So, choose $R_1$, then solve for $R_2$ and $R_3$ consecutively.</p>
+<p>Here’s pictures with the work if anyone’s curious or finds mistakes.</p>
+<ul>
+<li><a href="https://superlou.github.io/implementing-comparators-with-hysteresis/noninverting.jpg">Non-inverting</a></li>
+<li><a href="https://superlou.github.io/implementing-comparators-with-hysteresis/inverting_1_of_3.jpg">Inverting 1 of 3</a></li>
+<li><a href="https://superlou.github.io/implementing-comparators-with-hysteresis/inverting_2_of_3.jpg">Inverting 2 of 3</a></li>
+<li><a href="https://superlou.github.io/implementing-comparators-with-hysteresis/inverting_3_of_3.jpg">Inverting 3 of 3</a></li>
+</ul>
+
+    </div>
+
+    
+    <div class="article-info">
+        
+        <div class="article-date">19 January 2014</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://superlou.github.io/tags/electronics/">#electronics</a></li>
+                    
+                    <li><a href="https://superlou.github.io/tags/comparator/">#comparator</a></li>
+                    
+                    <li><a href="https://superlou.github.io/tags/hysteresis/">#hysteresis</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+</article>
+
+
+        </main>
+        <footer>
+            <p>
+                © lack of focus 2021<br>
+                Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
+            </p>
+            <p>
+                
+                
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
