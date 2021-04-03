@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer-when-downgrade">
 
-    <title>raspberry pi</title>
+    <title>robotics</title>
     <meta name="description" content="">
 
     <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
@@ -34,7 +34,7 @@
         </header>
         <main id="main" tabindex="-1">
             
-<h1>Tag: #raspberry pi</h1>
+<h1>Tag: #robotics</h1>
 <div class="article-info">
     <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;tags">To all tags</a>
 </div>
@@ -85,13 +85,13 @@
     <article class="post-list">
         <header> 
             <h1>
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;simple-stepper-motor-control-with-raspberry-pi&#x2F;">Simple Stepper Motor Control with Raspberry Pi</a>
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;deskbot-part-4-inverse-kinematics&#x2F;">Deskbot Part 4, Inverse Kinematics</a>
             </h1>
         </header>
 
         
         <div class="content post-summary">
-            <p>Stepper motors are a type of brushless DC motor that can be controlled so that they advance a fixed step size.  Additionally, they provide a strong holding torque.  This can make them useful in applications where you want to rotate the motor precisely without employing encoders.  When prototyping, I like to use development boards that can be transferred to a custom PCB easily.  This gives me a clear path if I want to move the design from the Protoboard to something more polished.</p>
+            <p>Unfortunately for us, forward kinematics doesn't let our robot control itself.  To determine the servo positions that achieve a robot position, we need <a href="https://en.wikipedia.org/wiki/Inverse_kinematics">inverse kinematics</a>.</p>
 
         </div>
         
@@ -99,24 +99,14 @@
         
     <div class="article-info">
         
-        <div class="article-date">20 September 2014</div>
+        <div class="article-date">16 December 2015</div>
         
         <div class="article-taxonomies">
             
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/raspberry-pi/">#raspberry pi</a></li>
-                    
-                    <li><a href="https://superlou.github.io/tags/linux/">#linux</a></li>
-                    
-                    <li><a href="https://superlou.github.io/tags/electronics/">#electronics</a></li>
-                    
-                    <li><a href="https://superlou.github.io/tags/c/">#c</a></li>
-                    
-                    <li><a href="https://superlou.github.io/tags/drv8825/">#drv8825</a></li>
-                    
-                    <li><a href="https://superlou.github.io/tags/stepper-motor/">#stepper motor</a></li>
+                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
                     
                 </ul>
             
@@ -130,25 +120,99 @@
     <article class="post-list">
         <header> 
             <h1>
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;writing-a-raspberry-pi-image-using-the-ubuntu-diskutil&#x2F;">Writing a Raspberry Pi Image Using the Ubuntu DiskUtil</a>
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;deskbot-part-3-forward-kinematics&#x2F;">Deskbot Part 3, Forward Kinematics</a>
             </h1>
         </header>
 
+        
+        <div class="content post-summary">
+            <p>The process of determining the state of the robot from the control inputs is the <a href="https://en.wikipedia.org/wiki/Forward_kinematics">forward kinematics</a>.  For a given set of 4 servo positions, we should be able to predict the orientation of all parts of the robot.</p>
+
+        </div>
         
         
         
     <div class="article-info">
         
-        <div class="article-date">17 September 2013</div>
+        <div class="article-date">12 June 2015</div>
         
         <div class="article-taxonomies">
             
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/raspberry-pi/">#raspberry pi</a></li>
+                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/linux/">#linux</a></li>
+                </ul>
+            
+        </div>
+    </div>
+
+    </article>
+
+
+
+    <article class="post-list">
+        <header> 
+            <h1>
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;deskbot-part-2-hardware-prototype&#x2F;">Deskbot Part 2, Hardware Prototype</a>
+            </h1>
+        </header>
+
+        
+        <div class="content post-summary">
+            <p>Let's make a desktop robot that moves.  But wait, we have no tools.</p>
+
+        </div>
+        
+        
+        
+    <div class="article-info">
+        
+        <div class="article-date">12 February 2015</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+    </article>
+
+
+
+    <article class="post-list">
+        <header> 
+            <h1>
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;deskbot-part-1-architecture&#x2F;">Deskbot Part 1, Architecture</a>
+            </h1>
+        </header>
+
+        
+        <div class="content post-summary">
+            <p>It's been a while since I've done any robotics, so let's make that happen.  When designing an autonomous system, it's critical to have clear objectives so that the requirements for end effectors, sensory inputs, and processing resources can be achieved inside your cost and time budgets.  Instead of that, let's try to settle an office debate: what are the kinematics of a robotic platform positioned by 3 control rods?</p>
+<p>Then, we'll put eyes on it.  And it needs to fit on my desk; my apartment is not very large.</p>
+
+        </div>
+        
+        
+        
+    <div class="article-info">
+        
+        <div class="article-date">30 January 2015</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
                     
                 </ul>
             
