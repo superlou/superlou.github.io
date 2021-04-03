@@ -7,6 +7,26 @@
         <loc>https://superlou.github.io/about/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/animated-bugs-with-blender-and-tricaster/</loc>
+        <lastmod>2014-08-31</lastmod>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/budget-indoor-quadcopter/</loc>
+        <lastmod>2019-01-15</lastmod>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/building-a-uav/</loc>
+        <lastmod>2013-03-21</lastmod>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/checkinstall-vs-make-install/</loc>
+        <lastmod>2012-12-09</lastmod>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/converting-a-jquery-array-to-an-ember-array/</loc>
+        <lastmod>2013-04-17</lastmod>
+    </url>
+    <url>
         <loc>https://superlou.github.io/deskbot-part-1-architecture/</loc>
         <lastmod>2015-01-30</lastmod>
     </url>
@@ -105,6 +125,12 @@
         <loc>https://superlou.github.io/tags/automotive/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/tags/avconv/</loc>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/tags/blender/</loc>
+    </url>
+    <url>
         <loc>https://superlou.github.io/tags/bluehost/</loc>
     </url>
     <url>
@@ -129,6 +155,9 @@
         <loc>https://superlou.github.io/tags/electronics/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/tags/ember-js/</loc>
+    </url>
+    <url>
         <loc>https://superlou.github.io/tags/escape/</loc>
     </url>
     <url>
@@ -142,6 +171,9 @@
     </url>
     <url>
         <loc>https://superlou.github.io/tags/hysteresis/</loc>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/tags/jquery/</loc>
     </url>
     <url>
         <loc>https://superlou.github.io/tags/kodi/</loc>
@@ -186,7 +218,13 @@
         <loc>https://superlou.github.io/tags/stepper-motor/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/tags/tricaster/</loc>
+    </url>
+    <url>
         <loc>https://superlou.github.io/tags/uav/</loc>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/tags/video-production/</loc>
     </url>
     <url>
         <loc>https://superlou.github.io/tags/wordpress/</loc>
