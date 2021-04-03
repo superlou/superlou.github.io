@@ -5,6 +5,7 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block extra_head %}
+<link rel="stylesheet" href="{{ get_url(path="style.css", trailing_slash=false) }}">
 {% if page.extra.katex %}
 {{ macros::katex() }}
 {% endif %}

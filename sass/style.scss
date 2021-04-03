@@ -1,0 +1,13 @@
+.content a {
+  &:hover, &:focus {
+    color: #1d60a3;
+    border-bottom: 1px solid #1d60a3;
+  }
+}
+
+header a {
+  &:hover, &:focus {
+    color: #1d60a3;
+    border-bottom: none;
+  }
+}

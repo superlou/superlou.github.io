@@ -6,7 +6,7 @@ date = 2019-04-27
 tags = ["quadcopters"]
 +++
 
-The Jumper T8SG V2.0 Plus is a multi-protocol remotes with hall-effect gimbals commonly available near the $100 (USD) price point. It supports the Bayang protocol without any additional modules, which is perfect for the E011C I’ve been flying. At this price, it is a very interesting option for those just getting into flying but tired of toy remotes.
+The Jumper T8SG V2.0 Plus is a multi-protocol remotes with Hall-effect gimbals commonly available near the $100 (USD) price point. It supports the Bayang protocol without any additional modules, which is perfect for the E011C I’ve been flying. At this price, it is a very interesting option for those just getting into flying but tired of toy remotes.
 
 <!-- more -->
 
