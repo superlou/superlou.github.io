@@ -4,6 +4,7 @@ path = "about"
 template = "page.html"
 +++
 
-I'm an electrical engineer with experience in embedded C development for safety critical systems.
+I'm an electrical engineer in the avionics industry with experience in embedded C development for real-time safety critical systems.
 
-Email me at [lousimons@gmail.com](mailto:lousimons@gmail.com").
+* Email: [lousimons@gmail.com](mailto:lousimons@gmail.com")
+* Github: [github.com/superlou](https://github.com/superlou)
