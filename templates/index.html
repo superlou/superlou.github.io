@@ -2,4 +2,21 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ get_url(path="style.css", trailing_slash=false) }}">
+<script src="search_index.en.js"></script>
+<script src="elasticlunr.min.js"></script>
+<script src="search.js"></script>
 {% endblock extra_head %}
+
+{% block sidebar_nav %}
+{% for menu_link in config.extra.anpu_menu_links %}
+{% set link_url = menu_link.url | replace(from="$BASE_URL", to=config.base_url) %}
+<a {% if current_url and current_url == link_url %}class="active"{% endif %} href="{{ link_url }}">{{menu_link.name}}</a>
+{% endfor %}
+
+<div class="search-container">
+  <input id="search" type="search" placeholder="🔎">
+  <div class="search-results" style="display: none;">
+    <div class="search-results__items"></div>
+  </div>
+</div>
+{% endblock sidebar_nav %}

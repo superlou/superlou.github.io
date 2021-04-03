@@ -10,6 +10,7 @@ build_search_index = true
 title = "lack of focus"
 output_dir = "docs"
 theme = "anpu"
+default_language = "en"
 
 taxonomies = [
   { name = "categories" },
