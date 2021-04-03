@@ -1,0 +1,26 @@
+{% import "macros/page.html" as page_macros %}
+{% import "macros.html" as macros %}
+{% extends "index.html" %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block extra_head %}
+{% if page.extra.katex %}
+{{ macros::katex() }}
+{% endif %}
+{% endblock extra_head %}
+
+{% block content %}
+
+<article class="post">
+    <header>
+        <h1>{{ page.title }}</h1>
+    </header>
+    <div class="content">
+        {{ page.content | safe }}
+    </div>
+
+    {{ page_macros::page_info(page=page) }}
+</article>
+
+{% endblock content %}
