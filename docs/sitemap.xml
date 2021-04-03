@@ -7,6 +7,22 @@
         <loc>https://superlou.github.io/about/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/dodge-card-soccer/</loc>
+        <lastmod>2009-10-15</lastmod>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/implementing-comparators-with-hysteresis/</loc>
+        <lastmod>2014-01-19</lastmod>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/installing-mplab-x-and-pickit2-on-ubuntu/</loc>
+        <lastmod>2013-03-28</lastmod>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/installing-robocup-soccer-simulator-on-ubuntu/</loc>
+        <lastmod>2011-02-02</lastmod>
+    </url>
+    <url>
         <loc>https://superlou.github.io/jumper-t8sg-v2-0-plus-review/</loc>
         <lastmod>2019-04-27</lastmod>
     </url>
@@ -72,6 +88,9 @@
         <loc>https://superlou.github.io/tags/c/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/tags/comparator/</loc>
+    </url>
+    <url>
         <loc>https://superlou.github.io/tags/cryptography/</loc>
     </url>
     <url>
@@ -96,6 +115,9 @@
         <loc>https://superlou.github.io/tags/games/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/tags/hysteresis/</loc>
+    </url>
+    <url>
         <loc>https://superlou.github.io/tags/kodi/</loc>
     </url>
     <url>
@@ -108,7 +130,13 @@
         <loc>https://superlou.github.io/tags/mint/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/tags/mplab-x/</loc>
+    </url>
+    <url>
         <loc>https://superlou.github.io/tags/nemo/</loc>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/tags/pickit2/</loc>
     </url>
     <url>
         <loc>https://superlou.github.io/tags/quadcopters/</loc>
@@ -117,16 +145,25 @@
         <loc>https://superlou.github.io/tags/raspberry-pi/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/tags/robocup/</loc>
+    </url>
+    <url>
         <loc>https://superlou.github.io/tags/sass/</loc>
     </url>
     <url>
         <loc>https://superlou.github.io/tags/stepper-motor/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/tags/uav/</loc>
+    </url>
+    <url>
         <loc>https://superlou.github.io/tags/wordpress/</loc>
     </url>
     <url>
         <loc>https://superlou.github.io/tags/xbmc/</loc>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/tags/xc8/</loc>
     </url>
     <url>
         <loc>https://superlou.github.io/vfr-flight-minimums/</loc>
