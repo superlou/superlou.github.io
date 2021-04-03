@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>Setting up libGDX on Ubuntu 13.04</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+
+    
+
+    
+
+
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to content</a>
+    <div class="container">
+        <header> 
+            <h1 class="site-header">
+                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+            </h1>
+            <nav>
+                
+                
+                
+                <a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+                
+                
+            </nav>
+        </header>
+        <main id="main" tabindex="-1">
+            
+
+<article class="post">
+    <header>
+        <h1>Setting up libGDX on Ubuntu 13.04</h1>
+    </header>
+    <div class="content">
+        <p>I recently received an Ouya and want to try coding a game for it. While the favorite child for Ouya developments seems to be Unity3D, the Unity IDE cannot be run on Linux.  While there are a huge set of frameworks and game engines for developing on Android, I didn’t want to have to do game testing entirely via an Android Virtual Device or by loading onto a phone.  Fortunately, libGDX provides a cross platform framework that should let me do most of the testing in on my PC.</p>
+<span id="continue-reading"></span><h1 id="setup">Setup</h1>
+<p>Create a libGDX Project in Android Developer Tools.</p>
+<p>The libGDX wiki has a list of <a href="http://code.google.com/p/libgdx/wiki/Prerequisits">prerequisites</a> but instead of using standalone Eclipse and installing the Android SDK, we’re going to use the Android Developer Tools Bundle which contains an IDE (based on Eclipse) with the Android SDK already bundled and configured.  When dealing with many Eclipse plugins and environments targeting very specific tool-chains, I find that the seperate Eclipse instances make configuration easier to debug.  Get the ADT Bundle from <a href="http://developer.android.com/sdk/installing/bundle.html">downloads</a>.  I’m using the 64-bit bundle with the build suffix 20130522.  Unzip it into a folder like <code>~/ouya</code>.</p>
+<p>Start ADT at <code>~/ouya/adt-bundle-linux-x86_64-20130522/eclipse/eclipse</code>, and install the Google Web Toolkit Plugin into ADT.  You will need to follow the instructions from https://developers.google.com/eclipse/docs/install-eclipse-4.2 to get the version compatible with Eclipse 3.8 which is what ADT is currently built on.  If you are using a later version of ADT, you may need to point at a different installation site.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-212852.png" alt="install additional software" /></p>
+<p>Click next, agree to the licenses, and install.</p>
+<p>Download the libGDX SDK from the <a href="http://code.google.com/p/libgdx/downloads/list">stable releases</a>.  I am using version 0.9.8.  I unzipped it into ~/ouya.  Set the executable bit on gdx-setup-ui.jar, and run it using a JDK runtime.  The GUI should start.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-212231.png" alt="libGDX setup GUI" /></p>
+<p>Create a project and configure it as befits your project.  Mine is about boats.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-212453.png" alt="configure project" /></p>
+<p>If the LibGDX library listed under required libraries is red, download it by clicking on the “download latest stable version” icon.  Once you get the pleasant “Your Configuration is valid” notification, click on “Open the generation screen.”  Click “Launch!” to generate your projects.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-212615.png" alt="Generate project" /></p>
+<p>Back in ADT, we can import our new projects.  In the ADT menu bar, choose File &gt; Import… and from the General folder, select “Existing Projects into Workspace.”  Press next, and set the root directory to the location of your libGDX projects.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-213159.png" alt="Import projects" /></p>
+<p>After the import, I had a build error on the boats-android project.  To resolve it, edit the project’s properties and select an Android Build Target.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-213356.png" alt="select Android build target" /></p>
+<p>I also had a build error on the boats-html project which was fixed by selecting the GWT SDK to be added to the project’s build path.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-213607.png" alt="Add GWT to build path" /></p>
+<h1 id="run-the-project">Run the Project</h1>
+<h2 id="android">Android</h2>
+<p>Select the android project, and chose run from the menu.  If you receive a “No active compatible AVD’s or devices found…” error, edit the project’s run configurations and select an Android Virtual Device.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-213919.png" alt="Select an Android Virtual Device" /></p>
+<p>If you don’t  have an AVD, <a href="http://developer.android.com/tools/devices/managing-avds.html">create one</a>.  Click run, and wait (possibly for a few minutes) for the AVD to start.  If successful, you should see the application start up.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-214136.png" alt="libGDX in Android emulator" /></p>
+<p>I was also able to run the application on my phone, though I haven’t figured out how to take a picture of my phone with my phone.</p>
+<h2 id="desktop">Desktop</h2>
+<p>Select the desktop project and run as a Java Application.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-214300.png" alt="libGDX on desktop" /></p>
+<h2 id="html5">HTML5</h2>
+<p>When you run the html project, a development server will start with a link to open the game in the browser.  Firefox will alert that “Development Mode requires the Google Web Toolkit Developer Plugin.”  Install the plugin, and after Firefox restarts, you should see the default game.</p>
+<p><img src="https://superlou.github.io/setting-up-libgdx-on-ubuntu-13-04/Screenshot-from-2013-06-20-204304.png" alt="libGDX on the web" /></p>
+<h1 id="conclusion">Conclusion</h1>
+<p>It sure looks like libGDX is running cross-platform, as promised.  I’m going to have to learn some Android programming to see if I can find any gotchas, but so far it looks good.  The next step is to try loading the game onto my Ouya.  The whole configuration went remarkably smoothly, so let me know if you encounter any obstacles.</p>
+
+    </div>
+
+    
+    <div class="article-info">
+        
+        <div class="article-date">20 June 2013</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://superlou.github.io/tags/linux/">#linux</a></li>
+                    
+                    <li><a href="https://superlou.github.io/tags/games/">#games</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+</article>
+
+
+        </main>
+        <footer>
+            <p>
+                © lack of focus 2021<br>
+                Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
+            </p>
+            <p>
+                
+                
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
