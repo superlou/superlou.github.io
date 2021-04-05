@@ -7,6 +7,10 @@
         <loc>https://superlou.github.io/about/</loc>
     </url>
     <url>
+        <loc>https://superlou.github.io/action-planning-in-python/</loc>
+        <lastmod>2021-04-04</lastmod>
+    </url>
+    <url>
         <loc>https://superlou.github.io/animated-bugs-with-blender-and-tricaster/</loc>
         <lastmod>2014-08-31</lastmod>
     </url>
@@ -117,6 +121,9 @@
     </url>
     <url>
         <loc>https://superlou.github.io/tags/</loc>
+    </url>
+    <url>
+        <loc>https://superlou.github.io/tags/ai/</loc>
     </url>
     <url>
         <loc>https://superlou.github.io/tags/atom-io/</loc>
