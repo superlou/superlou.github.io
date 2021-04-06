@@ -26,7 +26,7 @@ The initial state, s0, and goal state can be described as:
 | Faucet        | off     |         |
 | Stove         | off     | on      |
 
-Buy the time the planner is done, we want a full pot on a lit stove. While the world states must be completely defined, there are some variables we don't care about to satisfy the goal. We don't care where the chef ends up or and whether the faucet is running.
+By the time the planner is done, we want a full pot on a lit stove. While the world states must be completely defined, there are some variables we don't care about to satisfy the goal. We don't care where the chef ends up or and whether the faucet is running.
 
 The chef's actions can change the state of the world. If the planner tells the chef to pick up the pot, the chef's hand is now holding the pot. No other variables have changed. If the planner next tells the chef to move to the sink, both the chef's position and the pot's position change.
 
