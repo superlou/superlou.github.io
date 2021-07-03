@@ -9,12 +9,12 @@
     <title>Animated Bugs with Blender and Tricaster</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
 </head>
@@ -23,13 +23,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -52,7 +52,7 @@
         <p>The local public access station produces a weekly news/entertainment program called The Local Live.  The format features a live interview segment where community calls, emails, and tweets are taken on the air.  To keep the contact information onscreen throughout the entire segment, I wanted to animate the contact info into a graphics bug.  The station uses a Newtek Toaster Tricaster 860.  By dedicating a video playback DDR to a DSK channel, we can overlay videos with alpha.</p>
 <span id="continue-reading"></span><h1 id="create-the-animation-in-blender">Create the Animation in Blender</h1>
 <p>This is the time consuming part.  Since all I needed was some rotating graphics, this was more tedious than difficult.  Likely, there are more efficient tools than Blender for this (giving the text meshes an outline was painful), but sometimes you only have a hammer.</p>
-<p><img src="https://superlou.github.io/animated-bugs-with-blender-and-tricaster/Screenshot-from-2014-08-31-151103.png" alt="Blender window" /></p>
+<p><img src="https://www.louissimons.com/animated-bugs-with-blender-and-tricaster/Screenshot-from-2014-08-31-151103.png" alt="Blender window" /></p>
 <p>If you’re also making a bug, here’s some things to keep in mind:</p>
 <ul>
 <li>Make sure that your video loops seamlessly.  This will let you set the DDR on loop so you can run the bug.</li>
@@ -61,8 +61,8 @@
 <li>In the Scene Properties, don’t set your resolution overly high.  In my settings, I used 1280×720 pixels, but left the render scale percentage at 50%.  Make sure that the bug fills the camera’s viewport well, but does not clip.  An alternative is to make your render at your full broadcast resolution and position the camera so that the bug is the expected size and position in the frame, but this can make it awkward to work with down the road, since the video will be mostly empty space.  Double check your framerate settings so that everything plays back at the expected speed when we’re done.</li>
 </ul>
 <p>Tricaster supports transparency in the DDR through Quicktime videos with alpha.  Since Blender doesn’t render (at least on my system) directly to this format, we’ll output a series of PNGs and combine them later into the video.  By rendering to “//render/”, I’ll get a folder with a set of PNG files titled 0001.png, 0002.png, 0003.png, etc.  Make sure that “RGBA” is selected so that we have the alpha channel for transparency.</p>
-<p><img src="https://superlou.github.io/animated-bugs-with-blender-and-tricaster/Screenshot-from-2014-08-31-153054.png" alt="Blender bug output settings" /></p>
-<p>The final Blender file is available for reference <a href="https://superlou.github.io/animated-bugs-with-blender-and-tricaster/bug.blend">here</a>.</p>
+<p><img src="https://www.louissimons.com/animated-bugs-with-blender-and-tricaster/Screenshot-from-2014-08-31-153054.png" alt="Blender bug output settings" /></p>
+<p>The final Blender file is available for reference <a href="https://www.louissimons.com/animated-bugs-with-blender-and-tricaster/bug.blend">here</a>.</p>
 <h1 id="merging-the-image-sequence">Merging the Image Sequence</h1>
 <p>We’ll create the video from our rendered image sequence using Libav‘s avconv utility.  It’s an easy one-liner:</p>
 <pre style="background-color:#2b303b;">
@@ -85,15 +85,15 @@
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/linux/">#linux</a></li>
+                    <li><a href="https://www.louissimons.com/tags/linux/">#linux</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/video-production/">#video production</a></li>
+                    <li><a href="https://www.louissimons.com/tags/video-production/">#video production</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/blender/">#blender</a></li>
+                    <li><a href="https://www.louissimons.com/tags/blender/">#blender</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/avconv/">#avconv</a></li>
+                    <li><a href="https://www.louissimons.com/tags/avconv/">#avconv</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/tricaster/">#tricaster</a></li>
+                    <li><a href="https://www.louissimons.com/tags/tricaster/">#tricaster</a></li>
                     
                 </ul>
             

@@ -9,12 +9,12 @@
     <title>Action Planning in Python</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
 </head>
@@ -23,13 +23,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -52,7 +52,7 @@
         <p>Automated planning is a field of AI techniques for determining how to transform the world from an initial state to a goal state. This guide implements a form of classical planning in which we represent the problem domain as a set of state variables that are modified by each action taken.</p>
 <span id="continue-reading"></span><h1 id="how-to-boil-water">How to Boil Water</h1>
 <p>We'll explore a toy problem domain: a kitchen with an empty pot sitting on the counter, a sink, and a stove. Our goal is to boil a pot of water.</p>
-<p><img src="https://superlou.github.io/action-planning-in-python/kitchen.png" alt="kitchen" /></p>
+<p><img src="https://www.louissimons.com/action-planning-in-python/kitchen.png" alt="kitchen" /></p>
 <p>The initial state, s0, and goal state can be described as:</p>
 <table><thead><tr><th>Variable</th><th>s0</th><th>goal</th></tr></thead><tbody>
 <tr><td>Chef position</td><td>counter</td><td></td></tr>
@@ -136,7 +136,7 @@
 <li>Otherwise, gets the neighbors for the current node, and, if it is the cheapest path it's seen to reach this node (since there are potentially multiple paths to a node), add it to the open set so it can be investigated as a potentially cheap path to the goal.</li>
 </ol>
 <p>We'll test the implementation with a simple map of nodes that have positions and edges with a traversal difficulty.</p>
-<p><img src="https://superlou.github.io/action-planning-in-python/position_nodes.png" alt="Nodes" /></p>
+<p><img src="https://www.louissimons.com/action-planning-in-python/position_nodes.png" alt="Nodes" /></p>
 <p>Node 1 is the start and node 6 is the goal. The nodes are physical locations on a Cartesian coordinate system, with node 1 at (0, 0) and node 6 at (6, 1). The difficulty of traveling between nodes is shown on each edge of the graph. Note that it is not necessarily the same as the distance between the nodes. The edges and positions of the nodes are described by two functions:</p>
 <pre style="background-color:#2b303b;">
 <code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">neighbors</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">id</span><span style="color:#c0c5ce;">):
@@ -347,9 +347,9 @@ goal
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/ai/">#ai</a></li>
+                    <li><a href="https://www.louissimons.com/tags/ai/">#ai</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/python/">#python</a></li>
+                    <li><a href="https://www.louissimons.com/tags/python/">#python</a></li>
                     
                 </ul>
             

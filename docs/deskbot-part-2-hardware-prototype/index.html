@@ -9,17 +9,17 @@
     <title>Deskbot Part 2, Hardware Prototype</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.css">
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.js"></script>
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;auto-render.js"></script>
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.css">
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.js"></script>
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;auto-render.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         renderMathInElement(document.body, {
@@ -39,13 +39,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -68,19 +68,19 @@
         <p>Let's make a desktop robot that moves.  But wait, we have no tools.</p>
 <span id="continue-reading"></span><h1 id="mechanics">Mechanics</h1>
 <p>We're going to have to deal with as many off the shelf parts as possible.  If you remember from our previous episode, it's going to look something like this:</p>
-<p><img src="https://superlou.github.io/deskbot-part-2-hardware-prototype/sketch_render.png?resize=600,400" alt="hardware sketch" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-2-hardware-prototype/sketch_render.png?resize=600,400" alt="hardware sketch" /></p>
 <p>Since this is a prototype, we'll focus on the core parts of the mechanism.</p>
-<p><img src="https://superlou.github.io/deskbot-part-2-hardware-prototype/sketch_render_no_box.png?resize=600,400" alt="core mechanism" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-2-hardware-prototype/sketch_render_no_box.png?resize=600,400" alt="core mechanism" /></p>
 <p>The lower actuators are 3 Hitec <a rel="nofollow" href="http://www.amazon.com/gp/product/B0006O3WVE/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=B0006O3WVE&linkCode=as2&tag=louissimonsco-20&linkId=GE5LAFLM5GMG2ZRK">HS-311 servos</a><img src="http://ir-na.amazon-adsystem.com/e/ir?t=louissimonsco-20&l=as2&o=1&a=B0006O3WVE" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />.  Attached directly to the servo is a &quot;servo horn,&quot; luckily one of the ones supplied.  Now we need to get creative.  For the vertical upper leg, I used Du-Bro <a href="http://shop.dubro.com/p/4-40-safety-lock-kwik-link-qty-pkg-2">4-40 Safety Lock Kwik-Links</a> with a <a href="http://shop.dubro.com/p/heavy-duty-4-40-ball-link">Heavy Duty 4-40 Ball Link</a>.</p>
-<p><img src="https://superlou.github.io/deskbot-part-2-hardware-prototype/20151202_195204.jpg?resize=600,400" alt="assembled servo and leg" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-2-hardware-prototype/20151202_195204.jpg?resize=600,400" alt="assembled servo and leg" /></p>
 <p>Du-Bro seems to have some quality control issues on these parts.  One of the ball links and one of the Kwik-Links weren't threaded, but luckily the office has a tap and die set.  At the servo horn/Kwik-Link joint, we want a 1 degree-of-freedom hinge, so carefully expand the servo horn to accommodate the Kwik-Link pin with a small screwdriver bit.  The soft plastic of these parts (and the concentration of force at the hinge joint) will limit the accuracy of the system's control, but for a light platform, it seems good enough.  A future prototype should focus on making sure the knee hinge is more robust to off-axis forces.</p>
 <p>The fourth servo is a Tower Pro <a href="http://www.adafruit.com/products/169">SG92R micro servo</a> from Adafruit.  It's smaller than the rest since not much torque is required, and we want to minimize the weight and size of parts going in the platform.</p>
 <p>The platform itself is made up of two custom parts designed in FreeCad.  They were designed to be as cheap to 3D print as possible, so complexity and volume are kept to a minimum.  The flat servo <a href="https://www.shapeways.com/model/upload-and-buy/3670039">head mount</a> and <a href="https://www.shapeways.com/model/upload-and-buy/3669953">socket pin</a> are a couple dollars from Shapeways, though I'm not sure the dimensions will work out, as I had them printed by a local shop on a Makerbot.</p>
-<p><img src="https://superlou.github.io/deskbot-part-2-hardware-prototype/makerbot_visualization.jpg?resize=600,400" alt="Makerbot preview" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-2-hardware-prototype/makerbot_visualization.jpg?resize=600,400" alt="Makerbot preview" /></p>
 <p>The printed parts needed a lot of clean-up, especially the socket pins, due to the precision of the FDM process.  To get the ball links to spin freely in the sockets, I borrowed the office drill press and used a ball link to ream out the socket pins.</p>
-<p><img src="https://superlou.github.io/deskbot-part-2-hardware-prototype/socket_in_press.jpg?resize=600,400" alt="drill press socket reaming" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-2-hardware-prototype/socket_in_press.jpg?resize=600,400" alt="drill press socket reaming" /></p>
 <p>The finished platform assembly with base servos was cut into some cardboard.</p>
-<p><img src="https://superlou.github.io/deskbot-part-2-hardware-prototype/final_assembly.jpg?resize=600,400" alt="final assembly" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-2-hardware-prototype/final_assembly.jpg?resize=600,400" alt="final assembly" /></p>
 <h1 id="electronics">Electronics</h1>
 <p>The brain of the robot will be a Raspberry Pi, the old original version I had lying around.  A newer <a rel="nofollow" href="http://www.amazon.com/gp/product/B00T2U7R7I/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=B00T2U7R7I&linkCode=as2&tag=louissimonsco-20&linkId=COUIVEL37H6GAK3A">Raspberry Pi 2 Model B</a><img src="http://ir-na.amazon-adsystem.com/e/ir?t=louissimonsco-20&l=as2&o=1&a=B00T2U7R7I" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" class="tracker" /> should work just as well, and give a lot more flexibility on the software, but you'll need a 40-pin <a rel="nofollow" href="http://www.amazon.com/gp/product/B00OJEKNUK/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=B00OJEKNUK&linkCode=as2&tag=louissimonsco-20&linkId=INYBXWJJAI3GIPAA">GPIO Cobbler Plus</a><img src="http://ir-na.amazon-adsystem.com/e/ir?t=louissimonsco-20&l=as2&o=1&a=B00OJEKNUK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" class="tracker"/> instead of the older style breakout.</p>
 <p>In lieu of a proper schematic, the connections are:</p>
@@ -90,7 +90,7 @@
 <li>Connect the servo power supply ground to the RPi ground.</li>
 <li>Connect the four servo signal lines to pins 18, 23, 24, and 25.</li>
 </ul>
-<p><img src="https://superlou.github.io/deskbot-part-2-hardware-prototype/neat_wiring.jpg" alt="super neat wiring" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-2-hardware-prototype/neat_wiring.jpg" alt="super neat wiring" /></p>
 <h1 id="software">Software</h1>
 <p>Raspian is used as the RPi's OS.  To keep the software readable, I oscillated between high level languages, Ruby and Python.  I like the Ruby syntax better, but  the numerical computing libraries for Python are much more mature, and I later found Cython to be a critical tool for improving performance.</p>
 <p><a href="https://github.com/sarfata/pi-blaster">Pi-blaster</a> is used to create PWM signals on the RPi's GPIO pins.  The <a href="https://github.com/superlou/deskbot/tree/master/code">code for controlling the servos</a> is wrapped in a pair of helper classes: <code>PiBlasterServos</code>, and <code>Servo</code>.  These classes abstract the process of interpolating a servo angular position to a PWM period and writing it to <code>/dev/pi-blaster</code>.  Controlling a servo is done like so:</p>
@@ -116,7 +116,7 @@ pbs.</span><span style="color:#bf616a;">add</span><span style="color:#c0c5ce;">(
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
+                    <li><a href="https://www.louissimons.com/tags/robotics/">#robotics</a></li>
                     
                 </ul>
             

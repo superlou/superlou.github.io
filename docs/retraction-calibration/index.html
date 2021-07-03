@@ -9,12 +9,12 @@
     <title>3D Printer Retraction Calibration</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
 </head>
@@ -23,13 +23,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -65,14 +65,14 @@
 <li>Speed - how fast the filament is pulled back into the extrusion head</li>
 </ul>
 <p>I first disabled all retraction by setting both distance and speed to 0.  Using vector's <a href="http://www.thingiverse.com/thing:22263">retract/ooze test model</a> from Thingiverse, I printed the base case (twice):</p>
-<p><img src="https://superlou.github.io/retraction-calibration/base_case.jpg" alt="Base case" /></p>
+<p><img src="https://www.louissimons.com/retraction-calibration/base_case.jpg" alt="Base case" /></p>
 <p>You can see that the stringing is severe between the towers.  I then printed an array of tests, increasing the retraction distance and speed:</p>
-<p><img src="https://superlou.github.io/retraction-calibration/labeled.jpg" alt="Trials array" /></p>
+<p><img src="https://www.louissimons.com/retraction-calibration/labeled.jpg" alt="Trials array" /></p>
 <p>From these trials, I've been using 6mm and 80 mm/s, since it seems to be the point where there is minimal further reduction in stringing.  The printer seems to be significantly more sensitive to changes in retraction distance than retraction speed.  These values worked for me using a Bowden extruder, which typically requires a longer retraction distance compared to a direct feed extruder.  When calibrating your own printer, remember to start small and only change one variable at a time, increasing the retraction length by small amounts.  If I did this again, I'd probably increase by 1 mm per step rather than 2 to find the smallest retraction distance that minimizes stringing.</p>
 <p>However, I still have some issues with warts as the print head moves, though I don't know if those can be fixed through improved retraction settings.  You can see the warts between the tail and the back of the body.</p>
-<p><img src="https://superlou.github.io/retraction-calibration/tail.jpg" alt="Tail stringing" /></p>
+<p><img src="https://www.louissimons.com/retraction-calibration/tail.jpg" alt="Tail stringing" /></p>
 <p>Based on some feedback online, I ran a series of temperature tests using a <a href="http://www.thingiverse.com/thing:1019228">more complicated model</a>, hoping that the fine features would provide more insight.  Each print was run with 6 mm, 80 mm/s retraction:</p>
-<p><img src="https://superlou.github.io/retraction-calibration/temperature.jpg" alt="Temperature varitaion" /></p>
+<p><img src="https://www.louissimons.com/retraction-calibration/temperature.jpg" alt="Temperature varitaion" /></p>
 <p>The results were less dramatic than I expected, and the small changes are hard to see from the pictures.  There was no sign of delamination or poor adhesion down to 185°C.  There was a small improvement in the &quot;fingers&quot; along the near-left side of the print as the temperature was decreased.  Somewhat counterintuitively, stringing seemed to become worse as the temperature decreased.  At the lowest temperature, there were significantly more surface imperfections compared to 190°C, so that's what I've decided to use for this filament.</p>
 <p>Does anyone have any tips on what to try next?</p>
 

@@ -9,17 +9,17 @@
     <title>Implementing Comparators with Hysteresis</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.css">
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.js"></script>
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;auto-render.js"></script>
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.css">
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.js"></script>
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;auto-render.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         renderMathInElement(document.body, {
@@ -39,13 +39,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -66,7 +66,7 @@
     </header>
     <div class="content">
         <p>You need to implement a comparator circuit with hysteresis, and you pull up some app notes.  They look something like this, <a href="http://www.analog.com/library/analogdialogue/archives/34-07/comparators/">credit to Analog Devices</a>:</p>
-<p><img src="https://superlou.github.io/implementing-comparators-with-hysteresis/single_supply_comparators.png" alt="comparator schematics" /></p>
+<p><img src="https://www.louissimons.com/implementing-comparators-with-hysteresis/single_supply_comparators.png" alt="comparator schematics" /></p>
 <span id="continue-reading"></span>
 <p>If you have a circuit in hand, there are a dozen or so discussions online to determine the comparator’s characteristics: high threshold $V_{TH}$, low threshold $V_{TL}$, and hysteresis $V_{HYST}$.  We asume that $R_{PULL-UP}$ is reasonably small compared to the feedback network so that $V_{OH}$ is fixed.  These equations are pretty easy to derive yourself from basic circuit principles, but it’s a time saver to have them available.  Now, if you want to design your comparator circuit, and already know it’s characteristics, you have to either guess and check values, implement a solver, or do some basic algebra to solve the equations to get the resistor values in terms of the comparator’s characteristics.  Every time I do this, I lose my notes, so this time, they’re going online.</p>
 <p>Assumptions</p>
@@ -114,10 +114,10 @@ $$</p>
 <p>So, choose $R_1$, then solve for $R_2$ and $R_3$ consecutively.</p>
 <p>Here’s pictures with the work if anyone’s curious or finds mistakes.</p>
 <ul>
-<li><a href="https://superlou.github.io/implementing-comparators-with-hysteresis/noninverting.jpg">Non-inverting</a></li>
-<li><a href="https://superlou.github.io/implementing-comparators-with-hysteresis/inverting_1_of_3.jpg">Inverting 1 of 3</a></li>
-<li><a href="https://superlou.github.io/implementing-comparators-with-hysteresis/inverting_2_of_3.jpg">Inverting 2 of 3</a></li>
-<li><a href="https://superlou.github.io/implementing-comparators-with-hysteresis/inverting_3_of_3.jpg">Inverting 3 of 3</a></li>
+<li><a href="https://www.louissimons.com/implementing-comparators-with-hysteresis/noninverting.jpg">Non-inverting</a></li>
+<li><a href="https://www.louissimons.com/implementing-comparators-with-hysteresis/inverting_1_of_3.jpg">Inverting 1 of 3</a></li>
+<li><a href="https://www.louissimons.com/implementing-comparators-with-hysteresis/inverting_2_of_3.jpg">Inverting 2 of 3</a></li>
+<li><a href="https://www.louissimons.com/implementing-comparators-with-hysteresis/inverting_3_of_3.jpg">Inverting 3 of 3</a></li>
 </ul>
 
     </div>
@@ -132,11 +132,11 @@ $$</p>
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/electronics/">#electronics</a></li>
+                    <li><a href="https://www.louissimons.com/tags/electronics/">#electronics</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/comparator/">#comparator</a></li>
+                    <li><a href="https://www.louissimons.com/tags/comparator/">#comparator</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/hysteresis/">#hysteresis</a></li>
+                    <li><a href="https://www.louissimons.com/tags/hysteresis/">#hysteresis</a></li>
                     
                 </ul>
             

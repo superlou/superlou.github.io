@@ -9,17 +9,17 @@
     <title>Deskbot Part 3, Forward Kinematics</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.css">
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.js"></script>
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;auto-render.js"></script>
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.css">
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.js"></script>
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;auto-render.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         renderMathInElement(document.body, {
@@ -39,13 +39,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -68,7 +68,7 @@
         <p>The process of determining the state of the robot from the control inputs is the <a href="https://en.wikipedia.org/wiki/Forward_kinematics">forward kinematics</a>.  For a given set of 4 servo positions, we should be able to predict the orientation of all parts of the robot.</p>
 <span id="continue-reading"></span>
 <p>Here's our model of the robot head platform.  There's one more servo on top, but because that's a serial linkage, as opposed to the three parallel mechanisms at the base, we can account for that later.  The platform itself is an equilateral triangle.  While this arrangement could be generalized further, the following assumes that the base points also form an equilateral triangle, aligned with the platform.</p>
-<p><img src="https://superlou.github.io/deskbot-part-3-forward-kinematics/forward_kinematic_model.png" alt="forward kinematic model" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-3-forward-kinematics/forward_kinematic_model.png" alt="forward kinematic model" /></p>
 <p>From the diagram, we see that for each hinged linkage from a servo to the platform, the three points - base $B_i$, knee $K_i$, and platform $P_i$ - move in a single plane.  The base points are at:</p>
 <p>$$B_i=\begin{bmatrix}b_{xi}\b_{yi}\0\end{bmatrix}=\begin{bmatrix}r_b cos(\theta_i)\r_b sin(\theta_i)\0\end{bmatrix}$$</p>
 <p>Knowing the three servo angles $\theta_i$, the knee points are analytically solvable with basic geometry.</p>
@@ -125,7 +125,7 @@ $$</p>
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
+                    <li><a href="https://www.louissimons.com/tags/robotics/">#robotics</a></li>
                     
                 </ul>
             

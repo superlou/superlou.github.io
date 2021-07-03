@@ -9,12 +9,12 @@
     <title>Installing MPLAB X and PICkit2 on Ubuntu</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
 </head>
@@ -23,13 +23,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -61,15 +61,15 @@
 </span><span style="color:#bf616a;">sudo</span><span style="color:#c0c5ce;"> ./MPLABX-v1_70-linux-installer.run
 </span></code></pre>
 <p>Follow the fancy wizard. I installed to the default location (/opt/microchip/mplabx).</p>
-<p><img src="https://superlou.github.io/installing-mplab-x-and-pickit2-on-ubuntu/Screenshot-from-2013-03-27-200730.png" alt="MPLAB install wizard" /></p>
+<p><img src="https://www.louissimons.com/installing-mplab-x-and-pickit2-on-ubuntu/Screenshot-from-2013-03-27-200730.png" alt="MPLAB install wizard" /></p>
 <p>The wizard recommends rebooting after installation, but lets see how far we can get first. First, we’re going to install one of the compilers from http://www.microchip.com/MPLABxc. Since I’m interested in working with a PIC16F887 8-bit microcontroller, I’m going to install the XC8 compiler from http://www.microchip.com/mplabxc8linux.  You’ll need to mark the script executable and run it like we did for the IDE.  Make sure to configure the compiler in free mode.  We can activate the pro evaluation license down the road if desired, but it times out after 60 days.</p>
 <p>If all goes well, when MPLAB X IDE is started (available in the launcher), it will indicate that it has found the compiler that was installed.</p>
-<p><img src="https://superlou.github.io/installing-mplab-x-and-pickit2-on-ubuntu/mplabx_ide.png" alt="MPLAB X IDE" /></p>
+<p><img src="https://www.louissimons.com/installing-mplab-x-and-pickit2-on-ubuntu/mplabx_ide.png" alt="MPLAB X IDE" /></p>
 <p>On Linux Mint with Cinnamon, I’m experiencing the symptoms described by https://github.com/linuxmint/Cinnamon/issues/473, but I can worry about that later.</p>
 <h1 id="configuration">Configuration</h1>
 <p>Create a new “PIC16 C Template” project from the “Samples/Microchip Embedded” category. There may be some configuration loading errors because the default project wants the “hi-tech-picc” build tool-chain. Open the tool-chain configuration from Run –&gt; Set Project Configuration –&gt; Customize…</p>
 <p>Click Manage Configurations.., duplicate “XC8_PIC16F54,” and rename it to “XC8_PIC16F887.” Set it active. Select this new configuration from the Categories pane. In the configuration tab, change the family to Mid-Range 8-bit MCUs. Change the device to PIC16F887.  With the XC8 compiler installed, I get mostly green lights, and even the PICkit2 seems to be recognized.</p>
-<p><img src="https://superlou.github.io/installing-mplab-x-and-pickit2-on-ubuntu/pic16f887_config.png" alt="configuration window" /></p>
+<p><img src="https://www.louissimons.com/installing-mplab-x-and-pickit2-on-ubuntu/pic16f887_config.png" alt="configuration window" /></p>
 <p>Use Run –&gt; Build Main Project to verify that the project can be successfully built. From Debug –&gt; Debug Main Project, I can enter emulation, and pause and restart the program. I had to OK MPLAB changing the configuration settings to meet:</p>
 <p>Watchdog Timer Enable bit = On
 Low Voltage Programming Enable bit = RB3/PGM pin has PGM function, low voltage programming enabled</p>
@@ -130,13 +130,13 @@ void main(void)
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/uav/">#uav</a></li>
+                    <li><a href="https://www.louissimons.com/tags/uav/">#uav</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/mplab-x/">#mplab x</a></li>
+                    <li><a href="https://www.louissimons.com/tags/mplab-x/">#mplab x</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/pickit2/">#pickit2</a></li>
+                    <li><a href="https://www.louissimons.com/tags/pickit2/">#pickit2</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/xc8/">#xc8</a></li>
+                    <li><a href="https://www.louissimons.com/tags/xc8/">#xc8</a></li>
                     
                 </ul>
             

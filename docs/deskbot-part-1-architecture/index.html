@@ -9,17 +9,17 @@
     <title>Deskbot Part 1, Architecture</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.css">
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.js"></script>
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;auto-render.js"></script>
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.css">
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.js"></script>
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;auto-render.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         renderMathInElement(document.body, {
@@ -39,13 +39,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -69,13 +69,13 @@
 <p>Then, we'll put eyes on it.  And it needs to fit on my desk; my apartment is not very large.</p>
 <span id="continue-reading"></span><h1 id="platform-kinematics">Platform Kinematics</h1>
 <p>The control of the platform, i.e. head, needs to use a minimum number of servos.  Since linear actuators are bulky and expensive, we'll use 3 servo motors to control the orientation of the platform.  The servo motor arms will face &quot;inwards&quot; towards the platform, and a hinged leg on each motor will terminate in a ball-joint at the platform.  Letting the center of rotation of the servos create our base reference frame, the system looks like this:</p>
-<p><img src="https://superlou.github.io/deskbot-part-1-architecture/simple_platform-1.png" alt="platform system" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-1-architecture/simple_platform-1.png" alt="platform system" /></p>
 <p>It's a <a href="https://en.wikipedia.org/wiki/Parallel_manipulator">parallel robot</a> a little like a stripped down <a href="https://en.wikipedia.org/wiki/Stewart_platform">Stewart Platform</a>, popular for it's six degrees of freedom.  Each orange joint has 1 degree-of-freedom (DOF) and rotates like a hinge.  Each yellow joint has 3 DOFs, fixing the connection in space but ideally allowing unconstrained rotation.</p>
 <p>Our back of the napkin guess is that the 3 servos should give us 3 DOFs if our design is well constrained.  A more formal analysis using the mobility formula agrees.  Our simplified platform system is composed of 7 linked rigid bodies: 3 lower legs, 3 upper legs, and the platform itself.  These are all referenced to a fixed global reference plane that the lower legs are attached to.  These $n$ movable bodies each have 6 degrees of freedom before and linkages are made.  Then, each linkage removes up to 6 degrees of freedom, e.g. a hinge or linear slider removes 5, a planar slider removes 4, a spherical ball joint removes 3.  This gives us the mobility formula for our 6 hinge joints and 3 ball joints:</p>
 <p>$$M = 6n - \sum_{i=1}^{j}6-f_i$$</p>
 <p>$$M = 6 * 7 - \left(6 * 5 + 3 * 3\right) = 3$$</p>
 <p>Since the platform is the basis for our robot's head, we'll add one more servo in the center of the platform.  This neck allows the robot to look left and right.  This adds a fourth degree of freedom which can be verified using the same formula.</p>
-<p><img src="https://superlou.github.io/deskbot-part-1-architecture/system_with_neck.png" alt="full head system" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-1-architecture/system_with_neck.png" alt="full head system" /></p>
 <h1 id="concept-investigation">Concept Investigation</h1>
 <p>Now that we have explored the kinematics, we can waste time with some concept renders showing the interaction of the 4 servos.  Modeling the system to scale in <a href="http://www.blender.org/">Blender</a> and using inverse kinematic constraints  to &quot;pull&quot; the head and platform demonstrates that the basic concept works out.</p>
 <iframe src="https://player.vimeo.com/video/134567892" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
@@ -93,7 +93,7 @@
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
+                    <li><a href="https://www.louissimons.com/tags/robotics/">#robotics</a></li>
                     
                 </ul>
             

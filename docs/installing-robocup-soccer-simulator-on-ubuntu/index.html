@@ -9,12 +9,12 @@
     <title>Installing RoboCup Soccer Simulator on Ubuntu</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
 </head>
@@ -23,13 +23,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -55,13 +55,13 @@
 <p>While it may have been obvious to some, installing the RoboCup Soccer Simulator (RCSS) got caught up on a number of snags. In order to make everyone else’s life easier, this tutorial steps through the installation process for RCSS with some notes and commentary I picked up along the way. While the development server was an Xubuntu virtual machine, this document should be largely applicable to typical Ubuntu installations.</p>
 <span id="continue-reading"></span><h1 id="step-1-get-the-necessary-rcss-packages">Step 1: Get the Necessary RCSS Packages</h1>
 <p>You will need the rcssbase, rcssserver, and rcssmonitor packages which are available at http://sourceforge.net/project/showfiles.php?group_id=24184. The versions used for this tutorial are 12.1.1, 12.1.3, and 12.1.0 respectively. Once downloaded, extract all three to a convenient location.</p>
-<p><img src="https://superlou.github.io/installing-robocup-soccer-simulator-on-ubuntu/rcss1.jpg" alt="build and install rcssbase" /></p>
+<p><img src="https://www.louissimons.com/installing-robocup-soccer-simulator-on-ubuntu/rcss1.jpg" alt="build and install rcssbase" /></p>
 <p>As much as I dislike working from the command prompt, we’re going to be using it pretty heavily during the install since we will be working with superuser priveleges. Open a terminal and navigate to your rcssbase directory. Once there, execute the configure script using sudo.</p>
 <pre style="background-color:#2b303b;">
 <code class="language-sh" data-lang="sh"><span style="color:#96b5b4;">cd</span><span style="color:#c0c5ce;"> RCSS/rcssbase-12.1.1/ sudo ./configure </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">enter sudo password</span><span style="color:#b48ead;">]
 </span></code></pre>
 <p>Whoops, I don’t have a C++ compiler yet. Using the Applications panel, open “System” -&gt; “Synaptic Package Manager”. Use the search tool to find the g++ Ubuntu package, mark it for install, and install it.</p>
-<p><img src="https://superlou.github.io/installing-robocup-soccer-simulator-on-ubuntu/rcss2.jpg" alt="using synaptic package manager" /></p>
+<p><img src="https://www.louissimons.com/installing-robocup-soccer-simulator-on-ubuntu/rcss2.jpg" alt="using synaptic package manager" /></p>
 <p>So lets try that again</p>
 <pre style="background-color:#2b303b;">
 <code class="language-sh" data-lang="sh"><span style="color:#bf616a;">sudo</span><span style="color:#c0c5ce;"> ./configure </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">enter sudo password</span><span style="color:#b48ead;">]
@@ -70,18 +70,18 @@
 <pre style="background-color:#2b303b;">
 <code class="language-sh" data-lang="sh"><span style="color:#bf616a;">sudo</span><span style="color:#c0c5ce;"> apt-get install libboost-* sudo ./configure </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">enter sudo password</span><span style="color:#b48ead;">]
 </span></code></pre>
-<p><img src="https://superlou.github.io/installing-robocup-soccer-simulator-on-ubuntu/rcss3.jpg" alt="install libboost" /></p>
+<p><img src="https://www.louissimons.com/installing-robocup-soccer-simulator-on-ubuntu/rcss3.jpg" alt="install libboost" /></p>
 <p>The next step is to compile the rcssbase package.</p>
 <pre style="background-color:#2b303b;">
 <code class="language-sh" data-lang="sh"><span style="color:#bf616a;">sudo</span><span style="color:#c0c5ce;"> make </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">enter sudo password</span><span style="color:#b48ead;">]
 </span></code></pre>
-<p><img src="https://superlou.github.io/installing-robocup-soccer-simulator-on-ubuntu/rcss4.jpg" alt="finished make" /></p>
+<p><img src="https://www.louissimons.com/installing-robocup-soccer-simulator-on-ubuntu/rcss4.jpg" alt="finished make" /></p>
 <p>Finally, we install the package</p>
 <pre style="background-color:#2b303b;">
 <code class="language-sh" data-lang="sh"><span style="color:#bf616a;">sudo</span><span style="color:#c0c5ce;"> make install </span><span style="color:#b48ead;">[</span><span style="color:#c0c5ce;">enter sudo password</span><span style="color:#b48ead;">]
 </span></code></pre>
 <p>I’ve added the screenshots for these steps to illustrate the final output of each of these steps, since it’s not too intuitive if you’ve succeeded or not. As a rule of thumb, compiling tends to fail in a big way. If you make it to gentle “Leaving directory” statements without rows and rows of errors, your likely ok. If you’re unsure, you can always read the output.</p>
-<p><img src="https://superlou.github.io/installing-robocup-soccer-simulator-on-ubuntu/rcss5.jpg" alt="leaving directory" /></p>
+<p><img src="https://www.louissimons.com/installing-robocup-soccer-simulator-on-ubuntu/rcss5.jpg" alt="leaving directory" /></p>
 <p>There’s one last thing we have to do before moving on. If you read through the output of the “make install” step, you will have noticed it complaining about libraries having been installed. To make these libraries accessible to other programs, we have two options. We can either list them in /etc/ld.so.conf, or we can create a file for listing RoboCup libraries inside the /etc/ld.so.conf.d directory. We’re going to go with that one since it keeps us out of an important system file.</p>
 <pre style="background-color:#2b303b;">
 <code class="language-sh" data-lang="sh"><span style="color:#96b5b4;">cd</span><span style="color:#c0c5ce;"> /etc/ld.so.conf.d sudo pico robocup.conf
@@ -106,9 +106,9 @@
 /
 </span></code></pre>
 <p>Again, <code>sudo run ldconfig</code> to update the dynamic loader cache.</p>
-<p><img src="https://superlou.github.io/installing-robocup-soccer-simulator-on-ubuntu/rcss6.jpg" alt="installing RCSS monitor" /></p>
+<p><img src="https://www.louissimons.com/installing-robocup-soccer-simulator-on-ubuntu/rcss6.jpg" alt="installing RCSS monitor" /></p>
 <p>Unfortunately, we’re going to need more libraries before we can install the monitor package. We can use the Synaptic Package Manager to install the libxpm development packages.</p>
-<p><img src="https://superlou.github.io/installing-robocup-soccer-simulator-on-ubuntu/rcss7.jpg" alt="installing libxpm" /></p>
+<p><img src="https://www.louissimons.com/installing-robocup-soccer-simulator-on-ubuntu/rcss7.jpg" alt="installing libxpm" /></p>
 <p>Now ./configure, make, make install that sucker. During the install, make threw-up many warnings. But so far I have ignored them and have not yet received punishment.</p>
 <h1 id="step-5-run-hopefully">Step 5 – Run, Hopefully</h1>
 <blockquote>
@@ -116,7 +116,7 @@
 </blockquote>
 <p>Open up two fresh terminals. In the first, type <code>rcss</code> followed by the tab key twice. If everything’s gone well, you should see a list of RCSS related programs we now have. Start the RCSS server running by entering “rcssserver”. There is no need to run the server with superuser privelages.</p>
 <p>In your other terminal, start the RCSS monitor by entering <code>rcssmonitor</code>. Your first terminal should report a new monitor has connected. You can select “connect” in the rcssmonitor GUI and then “kick off” to see what happens if you had two teams of rocks make it to the World Cup. Connecting clients (soccer players) is for another tutorial.</p>
-<p><img src="https://superlou.github.io/installing-robocup-soccer-simulator-on-ubuntu/rcss8.jpg" alt="kickoff" /></p>
+<p><img src="https://www.louissimons.com/installing-robocup-soccer-simulator-on-ubuntu/rcss8.jpg" alt="kickoff" /></p>
 <h1 id="references">References</h1>
 <p>Help installing robocup server – http://ubuntuforums.org/showthread.php?t=721261</p>
 
@@ -132,9 +132,9 @@
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/linux/">#linux</a></li>
+                    <li><a href="https://www.louissimons.com/tags/linux/">#linux</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/robocup/">#robocup</a></li>
+                    <li><a href="https://www.louissimons.com/tags/robocup/">#robocup</a></li>
                     
                 </ul>
             

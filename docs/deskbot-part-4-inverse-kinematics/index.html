@@ -9,17 +9,17 @@
     <title>Deskbot Part 4, Inverse Kinematics</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.css">
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.js"></script>
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;auto-render.js"></script>
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.css">
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.js"></script>
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;auto-render.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         renderMathInElement(document.body, {
@@ -39,13 +39,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -71,11 +71,11 @@
 <p>Doubly unfortunate, we only have a numerical forward kinematics solution, and a fairly slow one for the Raspberry Pi.  If you were to use one of those previous optimization techniques, you end up with solvers of solvers which quickly bottleneck a real-time robot.  Neural networks could be an interesting solution, but the Rapspberry Pi isn't well suited to parallelizing mathematics, and my early attempts ran into issues because of the periodicity of servo solutions.  Rather than learning how to contrain the learning functions, let's try another approach.</p>
 <h1 id="constraints">Constraints</h1>
 <p>The platform of the Deskbot, the head, is modeled as an equilateral triangle, with each point connected on hinged joints to a servo.  Because of the geometry of the hinges, each point is constrained to moving in a plane.</p>
-<p><img src="https://superlou.github.io/deskbot-part-4-inverse-kinematics/constrains.png" alt="Constraint planes" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-4-inverse-kinematics/constrains.png" alt="Constraint planes" /></p>
 <p>The red hinges and platform points are constrained to the red plane, the blue and green planes, likewise.</p>
 <h1 id="platform-inverse-kinematics">Platform Inverse Kinematics</h1>
 <p>Now we need a way to mathematically describe the desired state of the robot.</p>
-<p><img src="https://superlou.github.io/deskbot-part-4-inverse-kinematics/head_ik_model.png" alt="Head IK model" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-4-inverse-kinematics/head_ik_model.png" alt="Head IK model" /></p>
 <p>We are limiting our IK model to just the head for now.  The three points, $P_{1,2,3}$, are the corners of the equilateral triangle that make up the platform.  $P_C$ is the centroid of the platform.  Point $N$ is straight up from the centroid.  Perpendicular to $N$ and in the plane of the platform, vector $\vec{e}$ represents the direction the eyes of the robot are looking.  $\vec{f}$ is the left-ear, and must always be 90 degrees from $\vec{e}$.  We use the left ear so that our system follows right-hand rule: when we use unit vectors for the eye and ear, their cross product will point upwards and produce a unit vector perpendicular to both.  This new perpendicular unit vector is scaled by the length of the &quot;neck&quot; to produce $N$.  The really great thing about these two vectors is that they give references we can rotate around that are natural: tilting the head up and down regardless of the direction it is looking is a rotation about the ear vector, and canting the head is a rotation about the eye vector.</p>
 <p>Our solution will work backwards.  We want to achieve a $\vec{e}$ and $\vec{f}$ and care only about the z position of $N$.  Moving $\vec{e}$ and $\vec{f}$ around rotates our platform in space, however the platform's points must still lie in their limited planes of motions.  Shifting the platform points back to achievable positions is mostly translation, but also causes a rotation.  $\theta$ provides a necessary degree of freedom so that the eye and ear vectors can be achieve while still keeping the platform on it's planar &quot;rails.&quot;  We assume there is a $P_c$ and $\theta$ that aligns the platform in an achievable position while satisfying the eye and ear vectors.</p>
 <p>Giving up on doing this analytically, let's go back to using a solver.  Our error function seek to solve 4 equations for zero: the distance of a platform point to a plane (three of these), and the difference between the z-coordinate of $N$ and our desired height.  In python, that looks like this:</p>
@@ -171,9 +171,9 @@ f_v = </span><span style="color:#bf616a;">rotate_vector</span><span style="color
 <p>When our solver finishes, we will have $\theta$ and $P_c$ that positions the platform so that the eye and ear vectors are satisfied.  From these values, we can use geometry to determine $P_{0,1,2}$.  Since these points must lie in the planes that the servos can move the points in, we simply need an algorithm to determine the servo angles to achieve each point.  The constrains of the system will then fix up the platform in our desired position.</p>
 <h1 id="leg-inverse-kinematics">Leg Inverse Kinematics</h1>
 <p>Can't skip leg day.  Since we're assuming the parallel linkages of the servo &quot;legs&quot; and the platform will constrain the system, we can look at each servo base-knee-platform linkage individual.  We can simplify the 3D problem into a 2D one:</p>
-<p><img src="https://superlou.github.io/deskbot-part-4-inverse-kinematics/leg_solutions.png" alt="Leg solutions" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-4-inverse-kinematics/leg_solutions.png" alt="Leg solutions" /></p>
 <p>Even discounting the periodic nature of rotational joints, their can be multiple solutions: one with the knee flexing up, one with the knee flexing down.  To solve each linkage, lets take advantage of the 2D simplification.  Before we solve any anything, we'll translate and rotate the linkage so that the base is at $(0,0)$ and the motion is only in the x-z plane.</p>
-<p><img src="https://superlou.github.io/deskbot-part-4-inverse-kinematics/leg_model.png" alt="Leg model" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-4-inverse-kinematics/leg_model.png" alt="Leg model" /></p>
 <p>I apologize for the sloppy naming of axes and variables with the same notation.  The important thing is that we can construct two equations with two unknowns for this geometry:</p>
 <p>$$
 lcos(\alpha) + mcos(\beta) = x \\
@@ -226,7 +226,7 @@ $$</p>
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
+                    <li><a href="https://www.louissimons.com/tags/robotics/">#robotics</a></li>
                     
                 </ul>
             

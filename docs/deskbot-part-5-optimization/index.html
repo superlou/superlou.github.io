@@ -9,17 +9,17 @@
     <title>Deskbot Part 5, Optimization</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;main.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;style.css">
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
 
 
-<link rel="stylesheet" href="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.css">
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;katex.js"></script>
-<script defer src="https:&#x2F;&#x2F;superlou.github.io&#x2F;auto-render.js"></script>
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.css">
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.js"></script>
+<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;auto-render.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         renderMathInElement(document.body, {
@@ -39,13 +39,13 @@
     <div class="container">
         <header> 
             <h1 class="site-header">
-                <a href="https:&#x2F;&#x2F;superlou.github.io&#x2F;">lack of focus</a>
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
             </h1>
             <nav>
                 
 
 
-<a  href="https:&#x2F;&#x2F;superlou.github.io&#x2F;&#x2F;about&#x2F;">About</a>
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
 
 
 <div class="search-container">
@@ -243,7 +243,7 @@ pyximport.</span><span style="color:#bf616a;">install</span><span style="color:#
 
 </span></code></pre>
 <p>Running the benchmark, <code>rotate_vector</code> and <code>rotate_vector_fast</code> take 0.379 and 0.377 ms respectively.  That's not a great improvement.  What happened to our compiled-langauge performance?  To create sigificant improvements, Cython needs to have some more information.  Cython has a great utility to help track down where we're getting Python performance vs. C performance.  Running <code>cython -a code/kinematics/inverse/utilities.pyx</code> generates an HTML report, where lines highlighted in yellow have heavy Python overhead.</p>
-<p><img src="https://superlou.github.io/deskbot-part-5-optimization/before_optimization_cropped.png" alt="Before optimization" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-5-optimization/before_optimization_cropped.png" alt="Before optimization" /></p>
 <p>Lines 12 and 13 have a lot of overhead.  The first thing we can try is using native C calls for the trig. functions, rather than numpy's.</p>
 <pre style="background-color:#2b303b;">
 <code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">cython
@@ -389,7 +389,7 @@ cdef void </span><span style="color:#bf616a;">add3v</span><span style="color:#c0
 	...
 </span></code></pre>
 <p>It's a subtle change.  All of the input varaibles now have a trailing &quot;.&quot; to make sure Python represents them as a floating point number.  If we were pass in an integer value, Python would pass a &quot;long&quot; type to Cython.  Since we've optimized out the checks and conversions of types, this would crash the program.  For this inconvenience, though, we are rewarded by a large performance improvement: 26 ms in Cython vs. 367 ms in Python.  That's better than an order of magnitude improvement!  Rerunning <code>cython -a</code>, the mathematics no longer have significant overhead:</p>
-<p><img src="https://superlou.github.io/deskbot-part-5-optimization/after_optimization_cropped.png" alt="After optimization" /></p>
+<p><img src="https://www.louissimons.com/deskbot-part-5-optimization/after_optimization_cropped.png" alt="After optimization" /></p>
 <p>We still have a little bit of overhead in our conversion from C types back to a Numpy array, but we've hit the low-hanging fruit in this function.  This is just scratching the surface of what Cython can do.</p>
 <h2 id="back-to-the-rpi">Back to the RPi</h2>
 <p>Let's get our benchmark running on the RPi.  This requires a little leg-work, as the version of Cython pre-built for the RPi is too old.  First, I had to increase the size of the swap file to 1 GB by changing <code>/etc/dphys-swapfile</code> to have <code>CONF_SWAPFILE=1024</code>.  Then restart the swap file using the following:</p>
@@ -430,13 +430,13 @@ cdef void </span><span style="color:#bf616a;">add3v</span><span style="color:#c0
             
                 <ul class="article-tags">
                     
-                    <li><a href="https://superlou.github.io/tags/robotics/">#robotics</a></li>
+                    <li><a href="https://www.louissimons.com/tags/robotics/">#robotics</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/raspberry-pi/">#raspberry pi</a></li>
+                    <li><a href="https://www.louissimons.com/tags/raspberry-pi/">#raspberry pi</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/cython/">#cython</a></li>
+                    <li><a href="https://www.louissimons.com/tags/cython/">#cython</a></li>
                     
-                    <li><a href="https://superlou.github.io/tags/python/">#python</a></li>
+                    <li><a href="https://www.louissimons.com/tags/python/">#python</a></li>
                     
                 </ul>
             
