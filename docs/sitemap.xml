@@ -55,6 +55,10 @@
         <lastmod>2009-10-15</lastmod>
     </url>
     <url>
+        <loc>https://www.louissimons.com/embedded-cross-compiled-tdd/</loc>
+        <lastmod>2021-07-18</lastmod>
+    </url>
+    <url>
         <loc>https://www.louissimons.com/implementing-comparators-with-hysteresis/</loc>
         <lastmod>2014-01-19</lastmod>
     </url>
@@ -98,6 +102,9 @@
     </url>
     <url>
         <loc>https://www.louissimons.com/page/3/</loc>
+    </url>
+    <url>
+        <loc>https://www.louissimons.com/page/4/</loc>
     </url>
     <url>
         <loc>https://www.louissimons.com/replacing-the-a-c-blower-resistor-on-a-2009-ford-escape/</loc>
@@ -160,6 +167,9 @@
     </url>
     <url>
         <loc>https://www.louissimons.com/tags/electronics/</loc>
+    </url>
+    <url>
+        <loc>https://www.louissimons.com/tags/embedded/</loc>
     </url>
     <url>
         <loc>https://www.louissimons.com/tags/ember-js/</loc>
