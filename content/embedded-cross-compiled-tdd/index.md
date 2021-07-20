@@ -117,7 +117,7 @@ CGull will automatically look for a file named `test_debouncer.c` in the tests f
 
 ```c
 #include "unity.h"
-#include "debouncer.c"
+#include "debouncer.h"
 
 int main() {
   UNITY_BEGIN();
@@ -229,6 +229,7 @@ We can compile successfully, but we haven't implemented any debouncing logic, so
 ...
 typedef struct {
   uint8_t count[32];
+  uint32_t threshold;
 } Debouncer;
 ...
 
@@ -375,6 +376,17 @@ typedef struct {
 
 // debouncer.c
 ...
+void debouncer_new(Debouncer *debouncer, uint8_t threshold) {
+  uint32_t i;
+
+  for (i = 0; i < NUM_DEBOUNCE_INPUTS; i++) {
+    debouncer->count[i] = 0;
+  }
+
+  debouncer->threshold = threshold;
+  debouncer->state = 0;
+}
+
 uint32_t debouncer_update(Debouncer *debouncer, uint32_t input) {
   uint32_t i;
   uint32_t new_state = 0;

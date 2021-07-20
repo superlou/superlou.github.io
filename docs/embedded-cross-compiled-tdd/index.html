@@ -134,7 +134,7 @@ depends = [&quot;debouncer.c&quot;]
 <p>CGull will automatically look for a file named <code>test_debouncer.c</code> in the tests folder based on the section name <code>[test.debouncer]</code>. The bare minimum for this file is:</p>
 <pre style="background-color:#2b303b;">
 <code class="language-c" data-lang="c"><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">unity.h</span><span style="color:#c0c5ce;">&quot;
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">debouncer.c</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span style="color:#c0c5ce;">&quot;
 
 </span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">() {
   </span><span style="color:#bf616a;">UNITY_BEGIN</span><span style="color:#c0c5ce;">();
@@ -234,6 +234,7 @@ FAIL
 </span><span style="color:#c0c5ce;">...
 </span><span style="color:#b48ead;">typedef struct </span><span style="color:#c0c5ce;">{
   uint8_t count[</span><span style="color:#d08770;">32</span><span style="color:#c0c5ce;">];
+  uint32_t threshold;
 } Debouncer;
 ...
 
@@ -368,6 +369,17 @@ FAIL
 
 </span><span style="color:#65737e;">// debouncer.c
 </span><span style="color:#c0c5ce;">...
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">debouncer_new</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint8_t </span><span style="color:#bf616a;">threshold</span><span style="color:#c0c5ce;">) {
+  uint32_t i;
+
+  </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">(i = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
+    debouncer-&gt;count[i] = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
+  }
+
+  debouncer-&gt;threshold = threshold;
+  debouncer-&gt;state = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
+}
+
 uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint32_t </span><span style="color:#bf616a;">input</span><span style="color:#c0c5ce;">) {
   uint32_t i;
   uint32_t new_state = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
