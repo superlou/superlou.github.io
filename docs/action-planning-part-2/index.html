@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>Action Planning Part 2: Rewrite It In Rust</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+
+    
+
+    
+<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+
+
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to content</a>
+    <div class="container">
+        <header> 
+            <h1 class="site-header">
+                <a href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;">lack of focus</a>
+            </h1>
+            <nav>
+                
+
+
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;&#x2F;about&#x2F;">About</a>
+
+
+<div class="search-container">
+  <input id="search" type="search" placeholder="🔎">
+  <div class="search-results" style="display: none;">
+    <div class="search-results__items"></div>
+  </div>
+</div>
+
+            </nav>
+        </header>
+        <main id="main" tabindex="-1">
+            
+
+<article class="post">
+    <header>
+        <h1>Action Planning Part 2: Rewrite It In Rust</h1>
+    </header>
+    <div class="content">
+        <p>Back in <a href="/action-planning-in-python">Action Planning in Python</a>, we wrote a simple A* based planner that could solve the problem of boiling water, given a scenario with initial conditions, actions the AI agent can take, and preconditions for those actions. The result was:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">Path:
+pick up pot
+move to sink
+turn on faucet
+wait
+turn off faucet
+move to stove
+put down pot
+turn on stove
+goal
+</span></code></pre>
+<p>In Part 2, we're going to rewrite it in Rust.</p>
+<span id="continue-reading"></span>
+<p>Why? One thing I noticed was that I was using a lot of <a href="https://wiki.c2.com/?StringlyTyped">string-typing</a> to prototype something as fast as possible. I could do make objects and use Python type hints to cut down on my mistakes, but I want to see if I can write something as readable in Rust. Given the algorithm developed earlier was very functional, I think a lot of the implementation should map very cleanly. Additionally, the end goal of this series is going to be using the action planner in a game, and I'm planning to hook it into the Godot game engine via network calls. Creating a single executable planning server will make it easier to distribute.</p>
+<h1 id="the-state-of-the-world">The State of the World</h1>
+<p>To represent the state of the world, we will hold everything in a <code>State</code> struct. The possible values of state parameters are strongly typed using enums.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-rust" data-lang="rust"><span style="color:#c0c5ce;">#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+</span><span style="color:#b48ead;">pub enum </span><span style="color:#c0c5ce;">Pos {
+    Sink,
+    Counter,
+    Stove,
+}
+
+#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(Debug, PartialEq, Eq, Hash, Clone)]
+</span><span style="color:#b48ead;">pub enum </span><span style="color:#c0c5ce;">Holdable {
+    Pot,
+}
+
+#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(Debug, PartialEq, Eq, Hash, Clone)]
+</span><span style="color:#b48ead;">pub enum </span><span style="color:#c0c5ce;">Activatable {
+    Stove,
+    Faucet,
+}
+
+#[</span><span style="color:#bf616a;">derive</span><span style="color:#c0c5ce;">(Debug, PartialEq, Eq, Hash, Clone)]
+</span><span style="color:#b48ead;">pub struct </span><span style="color:#c0c5ce;">State {
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">pos</span><span style="color:#c0c5ce;">: Pos,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">pot_pos</span><span style="color:#c0c5ce;">: Pos,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">pot_filled</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">bool</span><span style="color:#c0c5ce;">,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">faucet_on</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">bool</span><span style="color:#c0c5ce;">,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">stove_on</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">bool</span><span style="color:#c0c5ce;">,
+    </span><span style="color:#b48ead;">pub </span><span style="color:#bf616a;">holding</span><span style="color:#c0c5ce;">: Option&lt;Holdable&gt;,
+}
+</span></code></pre>
+<p>Remember that back in Python, the state variables were often set to strings (yes, Python has <code>Enum</code>):</p>
+<pre style="background-color:#2b303b;">
+<code class="language-python" data-lang="python"><span style="color:#c0c5ce;">s0 = </span><span style="color:#bf616a;">State</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">pot_pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">pot_filled</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">,
+           </span><span style="color:#bf616a;">faucet_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">stove_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">holding</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">)
+</span></code></pre>
+<p>The Rust approach will cause compilation to fail if position is set to an undefined value. During the migration from Rust to Python, I found that it definitely took more effort to get the program running, but once it ran, there were rarely logic errors. Some parts of the code did have to be more explicit. In Python, I was able to simply count how many elements in the state <code>namedtuple</code> where different from the goal, in Rust, the heuristic looks like the following:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-rust" data-lang="rust"><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">heuristic</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">state</span><span style="color:#c0c5ce;">: &amp;State) -&gt; </span><span style="color:#b48ead;">f32 </span><span style="color:#c0c5ce;">{
+    </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> distance = </span><span style="color:#d08770;">0.0</span><span style="color:#c0c5ce;">;
+
+    </span><span style="color:#b48ead;">if</span><span style="color:#c0c5ce;"> state.pot_pos != Pos::Stove {
+        distance += </span><span style="color:#d08770;">1.0</span><span style="color:#c0c5ce;">;
+    }
+
+    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">!state.stove_on {
+        distance += </span><span style="color:#d08770;">1.0</span><span style="color:#c0c5ce;">;
+    }
+
+    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">!state.pot_filled {
+        distance += </span><span style="color:#d08770;">1.0</span><span style="color:#c0c5ce;">;
+    }
+
+    </span><span style="color:#b48ead;">if</span><span style="color:#c0c5ce;"> state.holding != None {
+        distance += </span><span style="color:#d08770;">1.0</span><span style="color:#c0c5ce;">;
+    }
+
+    </span><span style="color:#b48ead;">if</span><span style="color:#c0c5ce;"> state.faucet_on {
+        distance += </span><span style="color:#d08770;">1.0</span><span style="color:#c0c5ce;">;
+    }
+
+    distance
+}
+</span></code></pre>
+<p>Notice that the heuristic function doesn't receive a goal node as a parameter to compare against: it estimates how far the state is from the hard-coded expectations. This also avoids needing to create a <code>Goal</code> type. I initially set out to use a new <code>State</code> struct with nulled fields like in the Python implementation. There was a  problem, though: <code>State</code> must have definitions for every value in it (that isn't explicitly able to be <code>None</code>). However, the goal state often has &quot;don't care&quot; conditions for elements. What if I don't care about the final state of <code>faucet_on</code>? In the world represented by <code>State</code>, the faucet <em>must</em> be on or off. Since the goal doesn't change during the graph search, we'll just hard-code it into the heuristic.</p>
+<h1 id="changing-the-world">Changing the World</h1>
+<p>In Python, actions the AI agent could take were represented with functions that returned <code>None</code> if they failed preconditions, and otherwise returned a tuple with the new world state, the cost of the action, and a text description. This function moved the agent:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">move</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">state</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">to</span><span style="color:#c0c5ce;">):
+    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">state.pos == to:
+        </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">None
+
+    </span><span style="color:#c0c5ce;">state = state.</span><span style="color:#bf616a;">_replace</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pos</span><span style="color:#c0c5ce;">=to)
+
+    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">state.holding is not </span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">:
+        moving_object = {state.holding + &#39;</span><span style="color:#a3be8c;">_pos</span><span style="color:#c0c5ce;">&#39;: to}
+        state = state.</span><span style="color:#bf616a;">_replace</span><span style="color:#c0c5ce;">(**moving_object)
+
+    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">state, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, &#39;</span><span style="color:#a3be8c;">move to </span><span style="color:#c0c5ce;">&#39; + to
+</span></code></pre>
+<p>The same action in Rust is very similar:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-rust" data-lang="rust"><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">move_actor</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">state</span><span style="color:#c0c5ce;">: &amp;State, </span><span style="color:#bf616a;">to</span><span style="color:#c0c5ce;">: Pos) -&gt; Option&lt;Neighbor&lt;State&gt;&gt; {
+    </span><span style="color:#b48ead;">if</span><span style="color:#c0c5ce;"> state.pos == to {
+        </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">None;
+    }
+
+    </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> new_state = state.</span><span style="color:#96b5b4;">clone</span><span style="color:#c0c5ce;">();
+    new_state.pos = to;
+
+    </span><span style="color:#b48ead;">if</span><span style="color:#c0c5ce;"> new_state.holding == Some(Holdable::Pot) {
+        new_state.pot_pos = to;
+    }
+
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> action = </span><span style="color:#b48ead;">match</span><span style="color:#c0c5ce;"> to {
+        Pos::Sink =&gt; &quot;</span><span style="color:#a3be8c;">Move to sink</span><span style="color:#c0c5ce;">&quot;,
+        Pos::Counter =&gt; &quot;</span><span style="color:#a3be8c;">Move to counter</span><span style="color:#c0c5ce;">&quot;,
+        Pos::Stove =&gt; &quot;</span><span style="color:#a3be8c;">Move to stove</span><span style="color:#c0c5ce;">&quot;,
+    };
+
+    Some(Neighbor::new(new_state, </span><span style="color:#d08770;">1.0</span><span style="color:#c0c5ce;">, action.</span><span style="color:#96b5b4;">to_owned</span><span style="color:#c0c5ce;">()))
+}
+</span></code></pre>
+<p>As expected, things are more explicit. The <code>to</code> parameter must be one of the <code>Pos</code> enum values instead of a string. The function is guaranteed to always return <code>None</code> or <code>Some(Neighbor&lt;State&gt;)</code>. A <code>Neighbor</code> holds onto the information we used to return in the tuple:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-rust" data-lang="rust"><span style="color:#b48ead;">pub struct </span><span style="color:#c0c5ce;">Neighbor&lt;S&gt; {
+    </span><span style="color:#bf616a;">state</span><span style="color:#c0c5ce;">: S,
+    </span><span style="color:#bf616a;">cost</span><span style="color:#c0c5ce;">: </span><span style="color:#b48ead;">f32</span><span style="color:#c0c5ce;">,
+    </span><span style="color:#bf616a;">action</span><span style="color:#c0c5ce;">: String,
+}
+</span></code></pre>
+<p><code>Neighbor</code> takes as type parameter <code>S</code>. This makes the <code>Neighbor</code> flexible enough to handle different world representations and not just our specific <code>State</code>. In Rust, the fields of <code>State</code> are fixed. If I want to separate my A* functions from my specific scenario, I don't want to hardcode this one type of state into the A* module, but I want the concept of Neighbors to be in the A* module. Using the type parameter lets <code>Neighbor</code> be generic to the exact type of state. Similarly, our specific <code>move_actor</code> action is part of the scenario and is only appropriate for this specific type of state.</p>
+<p>The other actions from the Python version are defined similarly and are all in <a href="https://github.com/superlou/action_planning/blob/main/step5-rs/src/main.rs">main.rs</a>.</p>
+<h2 id="a-is-reborn">A* is Reborn</h2>
+<p>Other than hiding the goal inside the <code>heuristic</code> function, the interface is the same as the Python version.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">pub fn a_star&lt;S&gt;(
+    start: &amp;S,
+    heuristic: &amp;dyn Fn(&amp;S) -&gt; f32,
+    neighbors: &amp;dyn Fn(&amp;S) -&gt; Vec&lt;Neighbor&lt;S&gt;&gt;,
+) -&gt; Result&lt;Vec&lt;(S, String)&gt;, ()&gt;
+where
+    S: Clone + PartialEq + Eq + std::hash::Hash + std::fmt::Debug,
+{
+ ...
+}
+</span></code></pre>
+<p>Probably the single greatest thing making the port to Rust easy is the <code>HashMap</code>, which can hash any struct that implements the <code>std::hash::Hash</code> trait, just like our <code>namedtuple</code>. The trait bounds on the type parameter <code>S</code> allow <code>a_star</code> to path plan using any neighbors where the state is hashable. Thanks to the <code>HashMap</code> providing the ability to look-up g-scores and f-scores from a state that's been visited, the body is an almost line for line translation from Python:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-rust" data-lang="rust"><span style="color:#c0c5ce;">...
+{
+    </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> open_set: Vec&lt;S&gt; = vec![start.</span><span style="color:#96b5b4;">clone</span><span style="color:#c0c5ce;">()];
+
+    </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> came_from = HashMap::new();
+
+    </span><span style="color:#65737e;">// Cost of path from start to node
+    </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> g_score = HashMap::new();
+    g_score.</span><span style="color:#96b5b4;">insert</span><span style="color:#c0c5ce;">(start.</span><span style="color:#96b5b4;">clone</span><span style="color:#c0c5ce;">(), </span><span style="color:#d08770;">0.0</span><span style="color:#c0c5ce;">);
+
+    </span><span style="color:#65737e;">// Estimated cost of path from start through node to goal
+    // This is an estimate of the total path cost.
+    </span><span style="color:#b48ead;">let mut</span><span style="color:#c0c5ce;"> f_score = HashMap::new();
+    f_score.</span><span style="color:#96b5b4;">insert</span><span style="color:#c0c5ce;">(start.</span><span style="color:#96b5b4;">clone</span><span style="color:#c0c5ce;">(), </span><span style="color:#96b5b4;">heuristic</span><span style="color:#c0c5ce;">(&amp;start));
+
+    </span><span style="color:#b48ead;">while</span><span style="color:#c0c5ce;"> open_set.</span><span style="color:#96b5b4;">len</span><span style="color:#c0c5ce;">() &gt; </span><span style="color:#d08770;">0 </span><span style="color:#c0c5ce;">{
+        open_set.</span><span style="color:#96b5b4;">sort_by</span><span style="color:#c0c5ce;">(|</span><span style="color:#bf616a;">a</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">b</span><span style="color:#c0c5ce;">| {
+            f_score
+                .</span><span style="color:#96b5b4;">get</span><span style="color:#c0c5ce;">(a)
+                .</span><span style="color:#96b5b4;">unwrap_or</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#b48ead;">f32</span><span style="color:#c0c5ce;">::</span><span style="color:#d08770;">INFINITY</span><span style="color:#c0c5ce;">)
+                .</span><span style="color:#96b5b4;">partial_cmp</span><span style="color:#c0c5ce;">(f_score.</span><span style="color:#96b5b4;">get</span><span style="color:#c0c5ce;">(b).</span><span style="color:#96b5b4;">unwrap_or</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#b48ead;">f32</span><span style="color:#c0c5ce;">::</span><span style="color:#d08770;">INFINITY</span><span style="color:#c0c5ce;">))
+                .</span><span style="color:#96b5b4;">unwrap</span><span style="color:#c0c5ce;">()
+        });
+
+        </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> current = &amp;open_set.</span><span style="color:#96b5b4;">remove</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">);
+
+        </span><span style="color:#b48ead;">if </span><span style="color:#96b5b4;">heuristic</span><span style="color:#c0c5ce;">(current) == </span><span style="color:#d08770;">0.0 </span><span style="color:#c0c5ce;">{
+            </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">Ok(</span><span style="color:#96b5b4;">reconstruct_path</span><span style="color:#c0c5ce;">(came_from, current));
+        }
+
+        </span><span style="color:#b48ead;">for</span><span style="color:#c0c5ce;"> neighbor in </span><span style="color:#96b5b4;">neighbors</span><span style="color:#c0c5ce;">(current) {
+            </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> tentative_g_score = g_score.</span><span style="color:#96b5b4;">get</span><span style="color:#c0c5ce;">(current).</span><span style="color:#96b5b4;">unwrap_or</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#b48ead;">f32</span><span style="color:#c0c5ce;">::</span><span style="color:#d08770;">INFINITY</span><span style="color:#c0c5ce;">) + neighbor.cost;
+            </span><span style="color:#b48ead;">if</span><span style="color:#c0c5ce;"> tentative_g_score &lt; *g_score.</span><span style="color:#96b5b4;">get</span><span style="color:#c0c5ce;">(&amp;neighbor.state).</span><span style="color:#96b5b4;">unwrap_or</span><span style="color:#c0c5ce;">(&amp;</span><span style="color:#b48ead;">f32</span><span style="color:#c0c5ce;">::</span><span style="color:#d08770;">INFINITY</span><span style="color:#c0c5ce;">) {
+                </span><span style="color:#65737e;">// This path to the neighbor is the best one seen so far
+</span><span style="color:#c0c5ce;">                came_from.</span><span style="color:#96b5b4;">insert</span><span style="color:#c0c5ce;">(
+                    neighbor.state.</span><span style="color:#96b5b4;">clone</span><span style="color:#c0c5ce;">(),
+                    (current.</span><span style="color:#96b5b4;">clone</span><span style="color:#c0c5ce;">(), neighbor.action.</span><span style="color:#96b5b4;">to_owned</span><span style="color:#c0c5ce;">()),
+                );
+                g_score.</span><span style="color:#96b5b4;">insert</span><span style="color:#c0c5ce;">(neighbor.state.</span><span style="color:#96b5b4;">clone</span><span style="color:#c0c5ce;">(), tentative_g_score);
+                f_score.</span><span style="color:#96b5b4;">insert</span><span style="color:#c0c5ce;">(
+                    neighbor.state.</span><span style="color:#96b5b4;">clone</span><span style="color:#c0c5ce;">(),
+                    tentative_g_score + </span><span style="color:#96b5b4;">heuristic</span><span style="color:#c0c5ce;">(&amp;neighbor.state),
+                );
+
+                </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">!open_set.</span><span style="color:#96b5b4;">contains</span><span style="color:#c0c5ce;">(&amp;&amp;neighbor.state) {
+                    open_set.</span><span style="color:#96b5b4;">push</span><span style="color:#c0c5ce;">(neighbor.state.</span><span style="color:#96b5b4;">clone</span><span style="color:#c0c5ce;">())
+                }
+            }
+        }
+    }
+
+    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">Err(());
+}
+</span></code></pre>
+<p>In my <a href="https://github.com/superlou/action_planning/blob/main/step4/a_star.py#L22-L52">original Python implementation</a>, the function has no explicit return if it fails to construct a path. I should've written tests to expose this scenario, but in Rust, the compiler enforces a return of <code>Result&lt;Vec&lt;(S, String)&gt;, ()&gt;</code>. When successful, the function returns <code>Ok&lt;Vec&lt;(S, String)&gt;</code>, which is a vector containing tuples of the states and actions to complete the path. If a path is not found, the result is <code>Err(())</code>, which is simply an error with an empty tuple.</p>
+<h1 id="running-it">Running It</h1>
+<p>As with the Python version, the planner is run by declaring an initial state and then running the A* search of actions until the heuristic indicates we are at the goal state.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-rust" data-lang="rust"><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">() {
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> s0 = State {
+        pos: Pos::Counter,
+        pot_pos: Pos::Counter,
+        pot_filled: </span><span style="color:#d08770;">false</span><span style="color:#c0c5ce;">,
+        faucet_on: </span><span style="color:#d08770;">false</span><span style="color:#c0c5ce;">,
+        stove_on: </span><span style="color:#d08770;">false</span><span style="color:#c0c5ce;">,
+        holding: None,
+    };
+
+    </span><span style="color:#b48ead;">let</span><span style="color:#c0c5ce;"> result = </span><span style="color:#96b5b4;">a_star</span><span style="color:#c0c5ce;">(&amp;s0, &amp;heuristic, &amp;neighbors);
+
+    </span><span style="color:#b48ead;">match</span><span style="color:#c0c5ce;"> result {
+        Ok(path) =&gt; {
+            </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">(_, action) in path {
+                println!(&quot;</span><span style="color:#d08770;">{}</span><span style="color:#c0c5ce;">&quot;, action);
+            }
+        }
+        Err(_) =&gt; println!(&quot;</span><span style="color:#a3be8c;">Unable to find solution!</span><span style="color:#c0c5ce;">&quot;),
+    };
+}
+</span></code></pre>
+<p>The result of compiling and running is the same as in Python.</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">Pick up pot
+Move to sink
+Turn on faucet
+wait
+Turn off faucet
+Move to stove
+Put down pot
+Turn on stove
+goal
+</span></code></pre>
+<p>The full Rust code is available <a href="https://github.com/superlou/action_planning/tree/main/step5-rs">here</a>. The biggest surprise I had was how straightforward it was to port the Python code to Rust. The next step in this series will be rewriting the planner to use dynamically generated scenarios and goals.</p>
+
+    </div>
+
+    
+    <div class="article-info">
+        
+        <div class="article-date">20 October 2021</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://www.louissimons.com/tags/ai/">#ai</a></li>
+                    
+                    <li><a href="https://www.louissimons.com/tags/rust/">#rust</a></li>
+                    
+                    <li><a href="https://www.louissimons.com/tags/python/">#python</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+</article>
+
+
+        </main>
+        <footer>
+            <p>
+                © lack of focus 2021<br>
+                Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
+            </p>
+            <p>
+                
+                
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
