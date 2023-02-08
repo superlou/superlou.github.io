@@ -9,12 +9,12 @@
     <title>Working with SASS on Bluehost</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 
 
 </head>
@@ -55,15 +55,13 @@
 <p>I’ve recently switched to WordPress since I was spending too much time configuring Drupal and not enough time making content.  I still prefer Drupal for sites that justify a CMS, but for a blog, why not use blogging software.  My biggest complaint with wordpress (other than The Loop) is how obviously WordPress most of the themes look.  I’m under no impressions that I can revolutionize WordPress aesthetics, but I figure I can make an obviously derivative theme on my own.</p>
 <p>After a quick search, it seems like the big names in starter themes are Underscores and Bones.  I chose to go forward with Bones because it provides a little more default styling than Underscores.  Rather than styling with CSS, Underscores heavily recommends that you compile your stylesheets from LESS or SASS.  Since I have more familiarity with SASS, I’m going to go down that road.  However, either language should be compiled server side.  This blog is a low traffic learning experience, so I’m going to do all of my theme editing live (or on a testing subdomain) and not hosted locally.  It’s not great practice.</p>
 <p>Anyway, lets work with SASS on Bluehost.  Our first step is to get SSH access to the Bluehost server.  You can request SSH access from the Bluehost cPanel. Once we have access to our account over SSH, we’ll need to install some gems.  Fortunately, Bluehost has the RubyGem package manager installed.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-sh" data-lang="sh"><span style="color:#bf616a;">gem</span><span style="color:#c0c5ce;"> install sass
-</span><span style="color:#bf616a;">gem</span><span style="color:#c0c5ce;"> install –version ‘</span><span style="color:#bf616a;">~</span><span style="color:#c0c5ce;">&gt; </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">.9′ rb-inotify </span><span style="color:#65737e;"># provides better performance when polling the filesystem for changed files
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">gem</span><span> install sass
+</span><span style="color:#bf616a;">gem</span><span> install –version ‘</span><span style="color:#bf616a;">~</span><span>&gt; </span><span style="color:#d08770;">0</span><span>.9′ rb-inotify </span><span style="color:#65737e;"># provides better performance when polling the filesystem for changed files
 </span></code></pre>
 <p>Now we watch the Bones library/scss folder for changes and automatically compile a new stylesheet:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-sh" data-lang="sh"><span style="color:#96b5b4;">cd
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#96b5b4;">cd
 </span><span style="color:#bf616a;">/wp-content/themes/
-sass</span><span style="color:#c0c5ce;"> –watch library/scss:library/css
+</span><span style="color:#bf616a;">sass</span><span> –watch library/scss:library/css
 </span></code></pre>
 <p>If we’re successful, we can edit <code>_base.scss</code>, change the body background, and watch sass recompile.  Then refresh your demo site and see your changes.  For more information on Sass, check out the tutorial.</p>
 
@@ -98,7 +96,7 @@ sass</span><span style="color:#c0c5ce;"> –watch library/scss:library/css
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

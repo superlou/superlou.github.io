@@ -9,12 +9,12 @@
     <title>Action Planning in Python</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 
 
 </head>
@@ -77,49 +77,48 @@
 <h1 id="a-graph-traversal">A* Graph Traversal</h1>
 <p><a href="https://en.wikipedia.org/wiki/Graph_traversal">Graph traversal</a> has a rich history in computer science. We will step away from our action planning problem for a few minutes and explore the A* graph traversal algorithm, though other graph traversal algorithms could work. Instead of states and actions, we'll talk nodes and edges.</p>
 <p>A pseudocode implementation is <a href="https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode">available on Wikipedia</a>, and it can be translated directly into Python (<a href="https://github.com/superlou/action_planning/blob/15175a1a9cf2a09b43827f1c6ed7b54fe884fc77/step1/a_star.py#L43">source</a>):</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">a_star</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">start</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">goal</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">neighbors</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">h</span><span style="color:#c0c5ce;">):
-    open_set = [start]
-    came_from = {}
-
-    </span><span style="color:#65737e;"># Cost of path from start node to n
-    </span><span style="color:#c0c5ce;">g_score = {}
-    g_score[start] = </span><span style="color:#d08770;">0
-
-    </span><span style="color:#65737e;"># Estimated cost of path from start node through n to goal
-    # This is an estimate of the total path cost
-    </span><span style="color:#c0c5ce;">f_score = {}
-    f_score[start] = </span><span style="color:#bf616a;">h</span><span style="color:#c0c5ce;">(start, goal)
-
-    </span><span style="color:#b48ead;">while </span><span style="color:#96b5b4;">len</span><span style="color:#c0c5ce;">(open_set) &gt; </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">:
-        open_set.</span><span style="color:#bf616a;">sort</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">key</span><span style="color:#c0c5ce;">=</span><span style="color:#b48ead;">lambda </span><span style="color:#bf616a;">id</span><span style="color:#c0c5ce;">: f_score.</span><span style="color:#bf616a;">get</span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">id</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">INF</span><span style="color:#c0c5ce;">))
-        current = open_set.</span><span style="color:#bf616a;">pop</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">)
-
-        </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">current == goal:
-            </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">reconstruct_path</span><span style="color:#c0c5ce;">(came_from, current)
-
-        </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">neighbor, d </span><span style="color:#b48ead;">in </span><span style="color:#bf616a;">neighbors</span><span style="color:#c0c5ce;">(current):
-            tentative_g_score = g_score.</span><span style="color:#bf616a;">get</span><span style="color:#c0c5ce;">(current, </span><span style="color:#bf616a;">INF</span><span style="color:#c0c5ce;">) + d
-            </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">tentative_g_score &lt; g_score.</span><span style="color:#bf616a;">get</span><span style="color:#c0c5ce;">(neighbor, </span><span style="color:#bf616a;">INF</span><span style="color:#c0c5ce;">):
-                </span><span style="color:#65737e;"># This path to neighbor is the best one seen so far
-                </span><span style="color:#c0c5ce;">came_from[neighbor] = current
-                g_score[neighbor] = tentative_g_score
-                f_score[neighbor] = g_score[neighbor] + </span><span style="color:#bf616a;">h</span><span style="color:#c0c5ce;">(neighbor, goal)
-
-                </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">neighbor not in open_set:
-                    open_set.</span><span style="color:#bf616a;">append</span><span style="color:#c0c5ce;">(neighbor)
-
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">reconstruct_path</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">came_from</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">current</span><span style="color:#c0c5ce;">):
-    total_path = [current]
-    </span><span style="color:#b48ead;">while </span><span style="color:#c0c5ce;">current in came_from:
-        current = came_from[current]
-        total_path.</span><span style="color:#bf616a;">insert</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, current)
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">total_path
-
-
-</span><span style="color:#bf616a;">INF </span><span style="color:#c0c5ce;">= </span><span style="color:#bf616a;">float</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">inf</span><span style="color:#c0c5ce;">&#39;)
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">a_star</span><span>(</span><span style="color:#bf616a;">start</span><span>, </span><span style="color:#bf616a;">goal</span><span>, </span><span style="color:#bf616a;">neighbors</span><span>, </span><span style="color:#bf616a;">h</span><span>):
+</span><span>    open_set = [start]
+</span><span>    came_from = {}
+</span><span>
+</span><span>    </span><span style="color:#65737e;"># Cost of path from start node to n
+</span><span>    g_score = {}
+</span><span>    g_score[start] = </span><span style="color:#d08770;">0
+</span><span>
+</span><span>    </span><span style="color:#65737e;"># Estimated cost of path from start node through n to goal
+</span><span>    </span><span style="color:#65737e;"># This is an estimate of the total path cost
+</span><span>    f_score = {}
+</span><span>    f_score[start] = </span><span style="color:#bf616a;">h</span><span>(start, goal)
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">while </span><span style="color:#96b5b4;">len</span><span>(open_set) &gt; </span><span style="color:#d08770;">0</span><span>:
+</span><span>        open_set.</span><span style="color:#bf616a;">sort</span><span>(</span><span style="color:#bf616a;">key</span><span>=</span><span style="color:#b48ead;">lambda </span><span style="color:#bf616a;">id</span><span>: f_score.</span><span style="color:#bf616a;">get</span><span>(</span><span style="color:#96b5b4;">id</span><span>, </span><span style="color:#bf616a;">INF</span><span>))
+</span><span>        current = open_set.</span><span style="color:#bf616a;">pop</span><span>(</span><span style="color:#d08770;">0</span><span>)
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">if </span><span>current == goal:
+</span><span>            </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">reconstruct_path</span><span>(came_from, current)
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">for </span><span>neighbor, d </span><span style="color:#b48ead;">in </span><span style="color:#bf616a;">neighbors</span><span>(current):
+</span><span>            tentative_g_score = g_score.</span><span style="color:#bf616a;">get</span><span>(current, </span><span style="color:#bf616a;">INF</span><span>) + d
+</span><span>            </span><span style="color:#b48ead;">if </span><span>tentative_g_score &lt; g_score.</span><span style="color:#bf616a;">get</span><span>(neighbor, </span><span style="color:#bf616a;">INF</span><span>):
+</span><span>                </span><span style="color:#65737e;"># This path to neighbor is the best one seen so far
+</span><span>                came_from[neighbor] = current
+</span><span>                g_score[neighbor] = tentative_g_score
+</span><span>                f_score[neighbor] = g_score[neighbor] + </span><span style="color:#bf616a;">h</span><span>(neighbor, goal)
+</span><span>
+</span><span>                </span><span style="color:#b48ead;">if </span><span>neighbor not in open_set:
+</span><span>                    open_set.</span><span style="color:#bf616a;">append</span><span>(neighbor)
+</span><span>
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">reconstruct_path</span><span>(</span><span style="color:#bf616a;">came_from</span><span>, </span><span style="color:#bf616a;">current</span><span>):
+</span><span>    total_path = [current]
+</span><span>    </span><span style="color:#b48ead;">while </span><span>current in came_from:
+</span><span>        current = came_from[current]
+</span><span>        total_path.</span><span style="color:#bf616a;">insert</span><span>(</span><span style="color:#d08770;">0</span><span>, current)
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>total_path
+</span><span>
+</span><span>
+</span><span style="color:#bf616a;">INF </span><span>= </span><span style="color:#bf616a;">float</span><span>(&#39;</span><span style="color:#a3be8c;">inf</span><span>&#39;)
 </span></code></pre>
 <p>There are tons of resources on this algorithm available online that do a thorough job explaining it, but there are a few important concepts:</p>
 <ul>
@@ -138,49 +137,45 @@
 <p>We'll test the implementation with a simple map of nodes that have positions and edges with a traversal difficulty.</p>
 <p><img src="https://www.louissimons.com/action-planning-in-python/position_nodes.png" alt="Nodes" /></p>
 <p>Node 1 is the start and node 6 is the goal. The nodes are physical locations on a Cartesian coordinate system, with node 1 at (0, 0) and node 6 at (6, 1). The difficulty of traveling between nodes is shown on each edge of the graph. Note that it is not necessarily the same as the distance between the nodes. The edges and positions of the nodes are described by two functions:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">neighbors</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">id</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#65737e;"># Tuples of (destination, cost)
-    </span><span style="color:#c0c5ce;">linkage_map = {
-        </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">: [(</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1.5</span><span style="color:#c0c5ce;">), (</span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1.5</span><span style="color:#c0c5ce;">)],
-        </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">: [(</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1.5</span><span style="color:#c0c5ce;">), (</span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">3.0</span><span style="color:#c0c5ce;">)],
-        </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">: [(</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1.5</span><span style="color:#c0c5ce;">), (</span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">4.5</span><span style="color:#c0c5ce;">)],
-        </span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;">: [(</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">3.0</span><span style="color:#c0c5ce;">), (</span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2.0</span><span style="color:#c0c5ce;">), (</span><span style="color:#d08770;">6</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2.5</span><span style="color:#c0c5ce;">)],
-        </span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">: [(</span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">4.5</span><span style="color:#c0c5ce;">), (</span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2.0</span><span style="color:#c0c5ce;">), (</span><span style="color:#d08770;">6</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2.5</span><span style="color:#c0c5ce;">)],
-        </span><span style="color:#d08770;">6</span><span style="color:#c0c5ce;">: [(</span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2.5</span><span style="color:#c0c5ce;">), (</span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2.5</span><span style="color:#c0c5ce;">)],
-    }
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">linkage_map[</span><span style="color:#96b5b4;">id</span><span style="color:#c0c5ce;">]
-
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">position</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">id</span><span style="color:#c0c5ce;">):
-    position_map = {
-        </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">: (</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">),
-        </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">: (</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">),
-        </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">: (</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">, -</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">),
-        </span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;">: (</span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">),
-        </span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">: (</span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">),
-        </span><span style="color:#d08770;">6</span><span style="color:#c0c5ce;">: (</span><span style="color:#d08770;">6</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">),
-    }
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">position_map[</span><span style="color:#96b5b4;">id</span><span style="color:#c0c5ce;">]
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">neighbors</span><span>(</span><span style="color:#bf616a;">id</span><span>):
+</span><span>    </span><span style="color:#65737e;"># Tuples of (destination, cost)
+</span><span>    linkage_map = {
+</span><span>        </span><span style="color:#d08770;">1</span><span>: [(</span><span style="color:#d08770;">2</span><span>, </span><span style="color:#d08770;">1.5</span><span>), (</span><span style="color:#d08770;">3</span><span>, </span><span style="color:#d08770;">1.5</span><span>)],
+</span><span>        </span><span style="color:#d08770;">2</span><span>: [(</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">1.5</span><span>), (</span><span style="color:#d08770;">4</span><span>, </span><span style="color:#d08770;">3.0</span><span>)],
+</span><span>        </span><span style="color:#d08770;">3</span><span>: [(</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">1.5</span><span>), (</span><span style="color:#d08770;">5</span><span>, </span><span style="color:#d08770;">4.5</span><span>)],
+</span><span>        </span><span style="color:#d08770;">4</span><span>: [(</span><span style="color:#d08770;">2</span><span>, </span><span style="color:#d08770;">3.0</span><span>), (</span><span style="color:#d08770;">5</span><span>, </span><span style="color:#d08770;">2.0</span><span>), (</span><span style="color:#d08770;">6</span><span>, </span><span style="color:#d08770;">2.5</span><span>)],
+</span><span>        </span><span style="color:#d08770;">5</span><span>: [(</span><span style="color:#d08770;">3</span><span>, </span><span style="color:#d08770;">4.5</span><span>), (</span><span style="color:#d08770;">4</span><span>, </span><span style="color:#d08770;">2.0</span><span>), (</span><span style="color:#d08770;">6</span><span>, </span><span style="color:#d08770;">2.5</span><span>)],
+</span><span>        </span><span style="color:#d08770;">6</span><span>: [(</span><span style="color:#d08770;">4</span><span>, </span><span style="color:#d08770;">2.5</span><span>), (</span><span style="color:#d08770;">5</span><span>, </span><span style="color:#d08770;">2.5</span><span>)],
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>linkage_map[</span><span style="color:#96b5b4;">id</span><span>]
+</span><span>
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">position</span><span>(</span><span style="color:#bf616a;">id</span><span>):
+</span><span>    position_map = {
+</span><span>        </span><span style="color:#d08770;">1</span><span>: (</span><span style="color:#d08770;">0</span><span>, </span><span style="color:#d08770;">0</span><span>),
+</span><span>        </span><span style="color:#d08770;">2</span><span>: (</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">2</span><span>),
+</span><span>        </span><span style="color:#d08770;">3</span><span>: (</span><span style="color:#d08770;">2</span><span>, -</span><span style="color:#d08770;">1</span><span>),
+</span><span>        </span><span style="color:#d08770;">4</span><span>: (</span><span style="color:#d08770;">4</span><span>, </span><span style="color:#d08770;">2</span><span>),
+</span><span>        </span><span style="color:#d08770;">5</span><span>: (</span><span style="color:#d08770;">4</span><span>, </span><span style="color:#d08770;">0</span><span>),
+</span><span>        </span><span style="color:#d08770;">6</span><span>: (</span><span style="color:#d08770;">6</span><span>, </span><span style="color:#d08770;">1</span><span>),
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>position_map[</span><span style="color:#96b5b4;">id</span><span>]
 </span></code></pre>
 <p>Even though we know how much it costs to go between any two nodes, the cost to move from any node to the goal isn't, as we don't know what route through other nodes is necessary. However, we might expect that the distance from a node to the goal would be a decent estimate. Our implementation will use the <a href="https://en.wikipedia.org/wiki/Taxicab_geometry">Manhattan distance</a> as the heuristic.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">heuristic</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">node</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">goal</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#65737e;">&quot;&quot;&quot; Estimate of cost to reach goal from node &quot;&quot;&quot;
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">(</span><span style="color:#96b5b4;">abs</span><span style="color:#c0c5ce;">((</span><span style="color:#bf616a;">position</span><span style="color:#c0c5ce;">(node)[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] - </span><span style="color:#bf616a;">position</span><span style="color:#c0c5ce;">(goal)[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">]))
-            + </span><span style="color:#96b5b4;">abs</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">position</span><span style="color:#c0c5ce;">(node)[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] - </span><span style="color:#bf616a;">position</span><span style="color:#c0c5ce;">(goal)[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">]))
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">heuristic</span><span>(</span><span style="color:#bf616a;">node</span><span>, </span><span style="color:#bf616a;">goal</span><span>):
+</span><span>    </span><span style="color:#65737e;">&quot;&quot;&quot; Estimate of cost to reach goal from node &quot;&quot;&quot;
+</span><span>    </span><span style="color:#b48ead;">return </span><span>(</span><span style="color:#96b5b4;">abs</span><span>((</span><span style="color:#bf616a;">position</span><span>(node)[</span><span style="color:#d08770;">0</span><span>] - </span><span style="color:#bf616a;">position</span><span>(goal)[</span><span style="color:#d08770;">0</span><span>]))
+</span><span>            + </span><span style="color:#96b5b4;">abs</span><span>(</span><span style="color:#bf616a;">position</span><span>(node)[</span><span style="color:#d08770;">1</span><span>] - </span><span style="color:#bf616a;">position</span><span>(goal)[</span><span style="color:#d08770;">1</span><span>]))
 </span></code></pre>
 <p>That gives us all the pieces we need to run the path finding algorithm.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">__name__ == &#39;</span><span style="color:#a3be8c;">__main__</span><span style="color:#c0c5ce;">&#39;:
-    path = </span><span style="color:#bf616a;">a_star</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">6</span><span style="color:#c0c5ce;">, neighbors, heuristic)
-    </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Path:</span><span style="color:#c0c5ce;">&#39;, path)
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">if </span><span>__name__ == &#39;</span><span style="color:#a3be8c;">__main__</span><span>&#39;:
+</span><span>    path = </span><span style="color:#bf616a;">a_star</span><span>(</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">6</span><span>, neighbors, heuristic)
+</span><span>    </span><span style="color:#96b5b4;">print</span><span>(&#39;</span><span style="color:#a3be8c;">Path:</span><span>&#39;, path)
 </span></code></pre>
 <p>The result is:</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">Path: [1, 2, 4, 6]
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>Path: [1, 2, 4, 6]
 </span></code></pre>
 <p>The full example is <a href="https://github.com/superlou/action_planning/tree/main/step2">here</a>. Play with the edge costs and see how they affect the selected path.</p>
 <h1 id="introducing-the-namedtuple">Introducing the <code>namedtuple</code></h1>
@@ -188,150 +183,143 @@
 <p>The A* search relies on being able to uniquely identify nodes. The dictionaries we store <code>f</code> and <code>g</code> scores in need to be able to identify if a node is new or is being revisited. When we ask for the neighbors of a node, it's very possible that we are doubling back. In the toy example earlier, we manually gave each node a unique ID.</p>
 <p>Fortunately, since we're storing this information in dictionaries, and Python dictionaries can treat any hashable datatype as a key, we just need to make sure our state is hashable. To do this, we use the <code>namdetuple</code> factory function. Technically, we could use tuples, but these will make the code more readable.</p>
 <p>The following captures the state of a node in the boil-water problem domain:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#c0c5ce;">State = </span><span style="color:#bf616a;">namedtuple</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">State</span><span style="color:#c0c5ce;">&#39;, (&#39;</span><span style="color:#a3be8c;">pos</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">pot_pos</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">pot_filled</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">faucet_on</span><span style="color:#c0c5ce;">&#39;,
-                             &#39;</span><span style="color:#a3be8c;">stove_on</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">holding</span><span style="color:#c0c5ce;">&#39;))
-
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>State = </span><span style="color:#bf616a;">namedtuple</span><span>(&#39;</span><span style="color:#a3be8c;">State</span><span>&#39;, (&#39;</span><span style="color:#a3be8c;">pos</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">pot_pos</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">pot_filled</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">faucet_on</span><span>&#39;,
+</span><span>                             &#39;</span><span style="color:#a3be8c;">stove_on</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">holding</span><span>&#39;))
+</span><span>
 </span><span style="color:#65737e;"># Create an initial condition
-</span><span style="color:#c0c5ce;">s0 = </span><span style="color:#bf616a;">State</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">pot_pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">pot_filled</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">,
-           </span><span style="color:#bf616a;">faucet_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">stove_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">holding</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">)
+</span><span>s0 = </span><span style="color:#bf616a;">State</span><span>(</span><span style="color:#bf616a;">pos</span><span>=&#39;</span><span style="color:#a3be8c;">counter</span><span>&#39;, </span><span style="color:#bf616a;">pot_pos</span><span>=&#39;</span><span style="color:#a3be8c;">counter</span><span>&#39;, </span><span style="color:#bf616a;">pot_filled</span><span>=</span><span style="color:#d08770;">False</span><span>,
+</span><span>           </span><span style="color:#bf616a;">faucet_on</span><span>=</span><span style="color:#d08770;">False</span><span>, </span><span style="color:#bf616a;">stove_on</span><span>=</span><span style="color:#d08770;">False</span><span>, </span><span style="color:#bf616a;">holding</span><span>=</span><span style="color:#d08770;">None</span><span>)
 </span></code></pre>
 <p>One thing to note with tuples is that they are immutable. Their values can't be changed, but a new tuple based on another can be created.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#c0c5ce;">s0.pos = &#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;                </span><span style="color:#65737e;"># Doesn&#39;t work
-</span><span style="color:#c0c5ce;">s1 = s0.</span><span style="color:#bf616a;">_replace</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;)   </span><span style="color:#65737e;"># Works
-</span></code></pre><h1 id="a-new-heuristic">A New Heuristic</h1>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>s0.pos = &#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;                </span><span style="color:#65737e;"># Doesn&#39;t work
+</span><span>s1 = s0.</span><span style="color:#bf616a;">_replace</span><span>(</span><span style="color:#bf616a;">pos</span><span>=&#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;)   </span><span style="color:#65737e;"># Works
+</span></code></pre>
+<h1 id="a-new-heuristic">A New Heuristic</h1>
 <p>Now that nodes don't represent physical locations, the Manhattan distance no longer works as a search heuristic. If the goal is to find a node as similar as possible to the goal, a node with fewer differing variables is likely closer to the goal. Remember, it's just an estimate to improve the search performance, not crucial to the ability of eventually finding a path.</p>
 <p>We'll also recognize that not all state variables matter to our goal. In the implementation, a goal is the same type of <code>namedtuple</code> as a state, but we won't fill in all the fields and let variable that aren't important default to an Ellipsis (<code>...</code>).</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#c0c5ce;">fields = (&#39;</span><span style="color:#a3be8c;">pos</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">pot_pos</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">pot_filled</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">faucet_on</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">stove_on</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">holding</span><span style="color:#c0c5ce;">&#39;)
-State = </span><span style="color:#bf616a;">namedtuple</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">State</span><span style="color:#c0c5ce;">&#39;, fields, </span><span style="color:#bf616a;">defaults</span><span style="color:#c0c5ce;">=(</span><span style="color:#d08770;">...</span><span style="color:#c0c5ce;">,) * </span><span style="color:#96b5b4;">len</span><span style="color:#c0c5ce;">(fields))
-
-s0 = </span><span style="color:#bf616a;">State</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">pot_pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">pot_filled</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">,
-           </span><span style="color:#bf616a;">faucet_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">stove_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">holding</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">)
-
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>fields = (&#39;</span><span style="color:#a3be8c;">pos</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">pot_pos</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">pot_filled</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">faucet_on</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">stove_on</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">holding</span><span>&#39;)
+</span><span>State = </span><span style="color:#bf616a;">namedtuple</span><span>(&#39;</span><span style="color:#a3be8c;">State</span><span>&#39;, fields, </span><span style="color:#bf616a;">defaults</span><span>=(</span><span style="color:#d08770;">...</span><span>,) * </span><span style="color:#96b5b4;">len</span><span>(fields))
+</span><span>
+</span><span>s0 = </span><span style="color:#bf616a;">State</span><span>(</span><span style="color:#bf616a;">pos</span><span>=&#39;</span><span style="color:#a3be8c;">counter</span><span>&#39;, </span><span style="color:#bf616a;">pot_pos</span><span>=&#39;</span><span style="color:#a3be8c;">counter</span><span>&#39;, </span><span style="color:#bf616a;">pot_filled</span><span>=</span><span style="color:#d08770;">False</span><span>,
+</span><span>           </span><span style="color:#bf616a;">faucet_on</span><span>=</span><span style="color:#d08770;">False</span><span>, </span><span style="color:#bf616a;">stove_on</span><span>=</span><span style="color:#d08770;">False</span><span>, </span><span style="color:#bf616a;">holding</span><span>=</span><span style="color:#d08770;">None</span><span>)
+</span><span>
 </span><span style="color:#65737e;"># Where fields are not assigned a value, they default to Ellipsis (...)
-</span><span style="color:#c0c5ce;">s_goal = </span><span style="color:#bf616a;">State</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pot_pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">stove_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">pot_filled</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">holding</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">)
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">heuristic</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">node</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">goal</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#65737e;">&quot;&quot;&quot; Estimate of cost to reach goal from node &quot;&quot;&quot;
-    </span><span style="color:#b48ead;">return </span><span style="color:#96b5b4;">len</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">tuple_diff</span><span style="color:#c0c5ce;">(node, goal))
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">tuple_diff</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">a</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">b</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#65737e;">&quot;&quot;&quot;
-    Return a list of all fields that differ between tuples a and b, ignoring
-    fields marked Ellipsis in either field.
-    &quot;&quot;&quot;
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">[(field, </span><span style="color:#96b5b4;">getattr</span><span style="color:#c0c5ce;">(a, field), </span><span style="color:#96b5b4;">getattr</span><span style="color:#c0c5ce;">(b, field))
-            </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">field </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">b._fields
-            </span><span style="color:#b48ead;">if </span><span style="color:#96b5b4;">getattr</span><span style="color:#c0c5ce;">(a, field) != </span><span style="color:#96b5b4;">getattr</span><span style="color:#c0c5ce;">(b, field) and
-            </span><span style="color:#96b5b4;">getattr</span><span style="color:#c0c5ce;">(a, field) != </span><span style="color:#d08770;">... </span><span style="color:#c0c5ce;">and </span><span style="color:#96b5b4;">getattr</span><span style="color:#c0c5ce;">(b, field) != </span><span style="color:#d08770;">...</span><span style="color:#c0c5ce;">]
-</span></code></pre><h1 id="describing-neighbors-in-the-problem-domain">Describing Neighbors in the Problem Domain</h1>
-<p>The last piece missing for A* is the neighbors function. It still receives a node in the graph, now a state, but the edges between nodes, actions, are going to be more interesting. Start by adding the states that result from a &quot;move&quot; action:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">neighbors</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">state</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#65737e;"># We still a list of connected states and the cost
-    # of traveling to them from the current state as tuples, but the shape
-    # of the function is the same as before.
-    </span><span style="color:#c0c5ce;">states = [</span><span style="color:#bf616a;">move</span><span style="color:#c0c5ce;">(state, pos) </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">pos </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">[&#39;</span><span style="color:#a3be8c;">sink</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;]]
-    states = [state </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">state </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">states </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">state is not </span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">]
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">states
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">move</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">state</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">to</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">state.pos == to:   </span><span style="color:#65737e;"># Precondition: can&#39;t move to where you already are
-        </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">None
-
-    </span><span style="color:#c0c5ce;">state = state.</span><span style="color:#bf616a;">_replace</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pos</span><span style="color:#c0c5ce;">=to)
-
-    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">state.holding is not </span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">:
-        moving_object = {state.holding + &#39;</span><span style="color:#a3be8c;">_pos</span><span style="color:#c0c5ce;">&#39;: to}
-        state = state.</span><span style="color:#bf616a;">_replace</span><span style="color:#c0c5ce;">(**moving_object)
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">state, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, &#39;</span><span style="color:#a3be8c;">move to </span><span style="color:#c0c5ce;">&#39; + to
+</span><span>s_goal = </span><span style="color:#bf616a;">State</span><span>(</span><span style="color:#bf616a;">pot_pos</span><span>=&#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;, </span><span style="color:#bf616a;">stove_on</span><span>=</span><span style="color:#d08770;">True</span><span>, </span><span style="color:#bf616a;">pot_filled</span><span>=</span><span style="color:#d08770;">True</span><span>, </span><span style="color:#bf616a;">holding</span><span>=</span><span style="color:#d08770;">None</span><span>)
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">heuristic</span><span>(</span><span style="color:#bf616a;">node</span><span>, </span><span style="color:#bf616a;">goal</span><span>):
+</span><span>    </span><span style="color:#65737e;">&quot;&quot;&quot; Estimate of cost to reach goal from node &quot;&quot;&quot;
+</span><span>    </span><span style="color:#b48ead;">return </span><span style="color:#96b5b4;">len</span><span>(</span><span style="color:#bf616a;">tuple_diff</span><span>(node, goal))
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">tuple_diff</span><span>(</span><span style="color:#bf616a;">a</span><span>, </span><span style="color:#bf616a;">b</span><span>):
+</span><span>    </span><span style="color:#65737e;">&quot;&quot;&quot;
+</span><span style="color:#65737e;">    Return a list of all fields that differ between tuples a and b, ignoring
+</span><span style="color:#65737e;">    fields marked Ellipsis in either field.
+</span><span style="color:#65737e;">    &quot;&quot;&quot;
+</span><span>    </span><span style="color:#b48ead;">return </span><span>[(field, </span><span style="color:#96b5b4;">getattr</span><span>(a, field), </span><span style="color:#96b5b4;">getattr</span><span>(b, field))
+</span><span>            </span><span style="color:#b48ead;">for </span><span>field </span><span style="color:#b48ead;">in </span><span>b._fields
+</span><span>            </span><span style="color:#b48ead;">if </span><span style="color:#96b5b4;">getattr</span><span>(a, field) != </span><span style="color:#96b5b4;">getattr</span><span>(b, field) and
+</span><span>            </span><span style="color:#96b5b4;">getattr</span><span>(a, field) != </span><span style="color:#d08770;">... </span><span>and </span><span style="color:#96b5b4;">getattr</span><span>(b, field) != </span><span style="color:#d08770;">...</span><span>]
 </span></code></pre>
-<p>We start out by adding all possible move actions. The chef can move to the sink, counter, and stove at will, but it doesn't make sense to allow the chef to move to a place that he's already been. This is the <em>precondition</em>, and if the precondition isn't met, there is no new node connected. The <code>neighbors</code> function will discard it before returning the list of all neighboring state nodes. This is very similar to the approach taken by classical planners like <a href="https://en.wikipedia.org/wiki/Stanford_Research_Institute_Problem_Solver">STRIPS</a>, except it is extended to operate on procedural conditions as with <a href="https://alumni.media.mit.edu/%7Ejorkin/goap.html">GOAP</a>.</p>
+<h1 id="describing-neighbors-in-the-problem-domain">Describing Neighbors in the Problem Domain</h1>
+<p>The last piece missing for A* is the neighbors function. It still receives a node in the graph, now a state, but the edges between nodes, actions, are going to be more interesting. Start by adding the states that result from a &quot;move&quot; action:</p>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">neighbors</span><span>(</span><span style="color:#bf616a;">state</span><span>):
+</span><span>    </span><span style="color:#65737e;"># We still a list of connected states and the cost
+</span><span>    </span><span style="color:#65737e;"># of traveling to them from the current state as tuples, but the shape
+</span><span>    </span><span style="color:#65737e;"># of the function is the same as before.
+</span><span>    states = [</span><span style="color:#bf616a;">move</span><span>(state, pos) </span><span style="color:#b48ead;">for </span><span>pos </span><span style="color:#b48ead;">in </span><span>[&#39;</span><span style="color:#a3be8c;">sink</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">counter</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;]]
+</span><span>    states = [state </span><span style="color:#b48ead;">for </span><span>state </span><span style="color:#b48ead;">in </span><span>states </span><span style="color:#b48ead;">if </span><span>state is not </span><span style="color:#d08770;">None</span><span>]
+</span><span>    </span><span style="color:#b48ead;">return </span><span>states
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">move</span><span>(</span><span style="color:#bf616a;">state</span><span>, </span><span style="color:#bf616a;">to</span><span>):
+</span><span>    </span><span style="color:#b48ead;">if </span><span>state.pos == to:   </span><span style="color:#65737e;"># Precondition: can&#39;t move to where you already are
+</span><span>        </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">None
+</span><span>
+</span><span>    state = state.</span><span style="color:#bf616a;">_replace</span><span>(</span><span style="color:#bf616a;">pos</span><span>=to)
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span>state.holding is not </span><span style="color:#d08770;">None</span><span>:
+</span><span>        moving_object = {state.holding + &#39;</span><span style="color:#a3be8c;">_pos</span><span>&#39;: to}
+</span><span>        state = state.</span><span style="color:#bf616a;">_replace</span><span>(**moving_object)
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>state, </span><span style="color:#d08770;">1</span><span>, &#39;</span><span style="color:#a3be8c;">move to </span><span>&#39; + to
+</span></code></pre>
+<p>We start out by adding all possible move actions. The chef can move to the sink, counter, and stove at will, but it doesn't make sense to allow the chef to move to a place that he's already been. This is the <em>precondition</em>, and if the precondition isn't met, there is no new node connected. The <code>neighbors</code> function will discard it before returning the list of all neighboring state nodes. This is very similar to the approach taken by classical planners like <a href="https://en.wikipedia.org/wiki/Stanford_Research_Institute_Problem_Solver">STRIPS</a>, except it is extended to operate on procedural conditions as with <a href="https://alumni.media.mit.edu/~jorkin/goap.html">GOAP</a>.</p>
 <p>All actions can be defined as functions that return a 3-value tuple with the new state, the cost of the action, and a text string describing the action. The text description isn't necessary for the A* search, but it will capture the action required to get from the start to the goal.</p>
 <p>Continuing with the heavy influence from GOAP, the effects of the action are also procedural. The position of the chef is set to the passed <code>to</code> parameter, and if the chef is holding an object, the position of that object is updated as well.</p>
 <p>All of the actions the chef can take are defined in the same manner: first, check if the preconditions are met, second, return a new state with the effects of the action applied. The final list of actions is:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">neighbors</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">state</span><span style="color:#c0c5ce;">):
-    states = []
-
-    states += [</span><span style="color:#bf616a;">move</span><span style="color:#c0c5ce;">(state, pos) </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">pos </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">[&#39;</span><span style="color:#a3be8c;">sink</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;]]
-    states += [</span><span style="color:#bf616a;">pick_up</span><span style="color:#c0c5ce;">(state, &#39;</span><span style="color:#a3be8c;">pot</span><span style="color:#c0c5ce;">&#39;), </span><span style="color:#bf616a;">put_down</span><span style="color:#c0c5ce;">(state)]
-    states += [</span><span style="color:#bf616a;">turn_on</span><span style="color:#c0c5ce;">(state, &#39;</span><span style="color:#a3be8c;">faucet</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">sink</span><span style="color:#c0c5ce;">&#39;),
-               </span><span style="color:#bf616a;">turn_off</span><span style="color:#c0c5ce;">(state, &#39;</span><span style="color:#a3be8c;">faucet</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">sink</span><span style="color:#c0c5ce;">&#39;),
-               </span><span style="color:#bf616a;">turn_on</span><span style="color:#c0c5ce;">(state, &#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;),
-               </span><span style="color:#bf616a;">turn_off</span><span style="color:#c0c5ce;">(state, &#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;, &#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;)]
-    states += [</span><span style="color:#bf616a;">wait</span><span style="color:#c0c5ce;">(state)]
-
-    states = [state </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">state </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">states </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">state is not </span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">]
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">states
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">neighbors</span><span>(</span><span style="color:#bf616a;">state</span><span>):
+</span><span>    states = []
+</span><span>
+</span><span>    states += [</span><span style="color:#bf616a;">move</span><span>(state, pos) </span><span style="color:#b48ead;">for </span><span>pos </span><span style="color:#b48ead;">in </span><span>[&#39;</span><span style="color:#a3be8c;">sink</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">counter</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;]]
+</span><span>    states += [</span><span style="color:#bf616a;">pick_up</span><span>(state, &#39;</span><span style="color:#a3be8c;">pot</span><span>&#39;), </span><span style="color:#bf616a;">put_down</span><span>(state)]
+</span><span>    states += [</span><span style="color:#bf616a;">turn_on</span><span>(state, &#39;</span><span style="color:#a3be8c;">faucet</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">sink</span><span>&#39;),
+</span><span>               </span><span style="color:#bf616a;">turn_off</span><span>(state, &#39;</span><span style="color:#a3be8c;">faucet</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">sink</span><span>&#39;),
+</span><span>               </span><span style="color:#bf616a;">turn_on</span><span>(state, &#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;),
+</span><span>               </span><span style="color:#bf616a;">turn_off</span><span>(state, &#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;, &#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;)]
+</span><span>    states += [</span><span style="color:#bf616a;">wait</span><span>(state)]
+</span><span>
+</span><span>    states = [state </span><span style="color:#b48ead;">for </span><span>state </span><span style="color:#b48ead;">in </span><span>states </span><span style="color:#b48ead;">if </span><span>state is not </span><span style="color:#d08770;">None</span><span>]
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>states
 </span></code></pre>
 <p>The rest of the action functions are <a href="https://github.com/superlou/action_planning/blob/15175a1a9cf2a09b43827f1c6ed7b54fe884fc77/step4/action_planning.py#L19-L60">here</a>.</p>
 <h1 id="running-the-planner">Running the Planner</h1>
 <p>A tweak to the A* search algorithm is required to keep track of the action descriptions. Previously, every edge implied a &quot;move,&quot; so it wasn't needed before.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">reconstruct_path</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">came_from</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">current</span><span style="color:#c0c5ce;">):
-    total_path = [(current, &#39;</span><span style="color:#a3be8c;">goal</span><span style="color:#c0c5ce;">&#39;)]
-
-    </span><span style="color:#b48ead;">while </span><span style="color:#c0c5ce;">current in came_from:
-        current, action = came_from[current]
-        total_path.</span><span style="color:#bf616a;">insert</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, (current, action))
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">total_path
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">a_star</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">start</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">goal</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">neighbors</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">h</span><span style="color:#c0c5ce;">):
-  </span><span style="color:#d08770;">...
-        </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">neighbor, d, action </span><span style="color:#b48ead;">in </span><span style="color:#bf616a;">neighbors</span><span style="color:#c0c5ce;">(current):
-            tentative_g_score = g_score.</span><span style="color:#bf616a;">get</span><span style="color:#c0c5ce;">(current, </span><span style="color:#bf616a;">INF</span><span style="color:#c0c5ce;">) + d
-            </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">tentative_g_score &lt; g_score.</span><span style="color:#bf616a;">get</span><span style="color:#c0c5ce;">(neighbor, </span><span style="color:#bf616a;">INF</span><span style="color:#c0c5ce;">):
-                </span><span style="color:#65737e;"># This path to neighbor is the best one seen so far
-                </span><span style="color:#c0c5ce;">came_from[neighbor] = current, action
-                g_score[neighbor] = tentative_g_score
-                f_score[neighbor] = g_score[neighbor] + </span><span style="color:#bf616a;">h</span><span style="color:#c0c5ce;">(neighbor, goal)
-
-                </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">neighbor not in open_set:
-                    open_set.</span><span style="color:#bf616a;">append</span><span style="color:#c0c5ce;">(neighbor)
-
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">reconstruct_path</span><span>(</span><span style="color:#bf616a;">came_from</span><span>, </span><span style="color:#bf616a;">current</span><span>):
+</span><span>    total_path = [(current, &#39;</span><span style="color:#a3be8c;">goal</span><span>&#39;)]
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">while </span><span>current in came_from:
+</span><span>        current, action = came_from[current]
+</span><span>        total_path.</span><span style="color:#bf616a;">insert</span><span>(</span><span style="color:#d08770;">0</span><span>, (current, action))
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>total_path
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">a_star</span><span>(</span><span style="color:#bf616a;">start</span><span>, </span><span style="color:#bf616a;">goal</span><span>, </span><span style="color:#bf616a;">neighbors</span><span>, </span><span style="color:#bf616a;">h</span><span>):
+</span><span>  </span><span style="color:#d08770;">...
+</span><span>        </span><span style="color:#b48ead;">for </span><span>neighbor, d, action </span><span style="color:#b48ead;">in </span><span style="color:#bf616a;">neighbors</span><span>(current):
+</span><span>            tentative_g_score = g_score.</span><span style="color:#bf616a;">get</span><span>(current, </span><span style="color:#bf616a;">INF</span><span>) + d
+</span><span>            </span><span style="color:#b48ead;">if </span><span>tentative_g_score &lt; g_score.</span><span style="color:#bf616a;">get</span><span>(neighbor, </span><span style="color:#bf616a;">INF</span><span>):
+</span><span>                </span><span style="color:#65737e;"># This path to neighbor is the best one seen so far
+</span><span>                came_from[neighbor] = current, action
+</span><span>                g_score[neighbor] = tentative_g_score
+</span><span>                f_score[neighbor] = g_score[neighbor] + </span><span style="color:#bf616a;">h</span><span>(neighbor, goal)
+</span><span>
+</span><span>                </span><span style="color:#b48ead;">if </span><span>neighbor not in open_set:
+</span><span>                    open_set.</span><span style="color:#bf616a;">append</span><span>(neighbor)
+</span><span>
 </span></code></pre>
 <p>With this change, the planner is run the same way as before.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">__name__ == &#39;</span><span style="color:#a3be8c;">__main__</span><span style="color:#c0c5ce;">&#39;:
-    s0 = </span><span style="color:#bf616a;">State</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">pot_pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">counter</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">pot_filled</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">,
-               </span><span style="color:#bf616a;">faucet_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">stove_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">False</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">holding</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">)
-    s_goal = </span><span style="color:#bf616a;">State</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pot_pos</span><span style="color:#c0c5ce;">=&#39;</span><span style="color:#a3be8c;">stove</span><span style="color:#c0c5ce;">&#39;, </span><span style="color:#bf616a;">stove_on</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">pot_filled</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">holding</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">None</span><span style="color:#c0c5ce;">)
-    path = </span><span style="color:#bf616a;">a_star</span><span style="color:#c0c5ce;">(s0, s_goal, neighbors, heuristic)
-
-    </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(&#39;</span><span style="color:#a3be8c;">Path:</span><span style="color:#c0c5ce;">&#39;)
-    </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">step </span><span style="color:#b48ead;">in </span><span style="color:#c0c5ce;">path:
-        </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(step[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">])
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">if </span><span>__name__ == &#39;</span><span style="color:#a3be8c;">__main__</span><span>&#39;:
+</span><span>    s0 = </span><span style="color:#bf616a;">State</span><span>(</span><span style="color:#bf616a;">pos</span><span>=&#39;</span><span style="color:#a3be8c;">counter</span><span>&#39;, </span><span style="color:#bf616a;">pot_pos</span><span>=&#39;</span><span style="color:#a3be8c;">counter</span><span>&#39;, </span><span style="color:#bf616a;">pot_filled</span><span>=</span><span style="color:#d08770;">False</span><span>,
+</span><span>               </span><span style="color:#bf616a;">faucet_on</span><span>=</span><span style="color:#d08770;">False</span><span>, </span><span style="color:#bf616a;">stove_on</span><span>=</span><span style="color:#d08770;">False</span><span>, </span><span style="color:#bf616a;">holding</span><span>=</span><span style="color:#d08770;">None</span><span>)
+</span><span>    s_goal = </span><span style="color:#bf616a;">State</span><span>(</span><span style="color:#bf616a;">pot_pos</span><span>=&#39;</span><span style="color:#a3be8c;">stove</span><span>&#39;, </span><span style="color:#bf616a;">stove_on</span><span>=</span><span style="color:#d08770;">True</span><span>, </span><span style="color:#bf616a;">pot_filled</span><span>=</span><span style="color:#d08770;">True</span><span>, </span><span style="color:#bf616a;">holding</span><span>=</span><span style="color:#d08770;">None</span><span>)
+</span><span>    path = </span><span style="color:#bf616a;">a_star</span><span>(s0, s_goal, neighbors, heuristic)
+</span><span>
+</span><span>    </span><span style="color:#96b5b4;">print</span><span>(&#39;</span><span style="color:#a3be8c;">Path:</span><span>&#39;)
+</span><span>    </span><span style="color:#b48ead;">for </span><span>step </span><span style="color:#b48ead;">in </span><span>path:
+</span><span>        </span><span style="color:#96b5b4;">print</span><span>(step[</span><span style="color:#d08770;">1</span><span>])
 </span></code></pre>
 <p>The search result is:</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">Path:
-pick up pot
-move to sink
-turn on faucet
-wait
-move to stove
-put down pot
-turn on stove
-goal
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>Path:
+</span><span>pick up pot
+</span><span>move to sink
+</span><span>turn on faucet
+</span><span>wait
+</span><span>move to stove
+</span><span>put down pot
+</span><span>turn on stove
+</span><span>goal
 </span></code></pre>
 <p>This looks pretty good, but we left the water faucet running! If we look back at <code>s_goal</code>, it's because we didn't require the faucet to be off in the goal. Making the responsible modification to the goal, the new path is:</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">Path:
-pick up pot
-move to sink
-turn on faucet
-wait
-turn off faucet
-move to stove
-put down pot
-turn on stove
-goal
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>Path:
+</span><span>pick up pot
+</span><span>move to sink
+</span><span>turn on faucet
+</span><span>wait
+</span><span>turn off faucet
+</span><span>move to stove
+</span><span>put down pot
+</span><span>turn on stove
+</span><span>goal
 </span></code></pre>
 <p>Much better.</p>
 
@@ -362,7 +350,7 @@ goal
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

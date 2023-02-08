@@ -9,12 +9,12 @@
     <title>Embedded Cross-Compiled Test Driven Development with CGull</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 
 
 </head>
@@ -52,22 +52,21 @@
         <p>Testing bare-metal embedded C isn't straightforward. Someone will shout &quot;stop using printf,&quot; and you'll yell back, &quot;what's a printf?&quot; They'll follow up with something about emulators. They're not wrong, but how do you efficiently regression test on the emulation target? Sure, you'll eventually have Requirements Based Tests (RBT) and &quot;black box test procedures,&quot; but they are hardware-in-the-loop and tedious to run. A full RBT suite can take weeks to execute with a combination of manual and scripted tests. The pathway to happiness isn't simply a fast &quot;edit-compile-run&quot; development loop, but a &quot;edit-compile-run-It Works and Didn't Break Something Else&quot; cycle. Enter cross-compiled TDD.</p>
 <span id="continue-reading"></span><h1 id="the-example-application">The Example Application</h1>
 <p>We have developed the following application for our hypothetical STM1769HC12 processor which is compiled inside a proprietary IDE that we must use per our approved tool-chain.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">bsp.h</span><span style="color:#c0c5ce;">&quot;
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">frame.h</span><span style="color:#c0c5ce;">&quot;
-
-</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">(</span><span style="color:#b48ead;">void</span><span style="color:#c0c5ce;">) {
-  uint32_t discrete_inputs = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-  </span><span style="color:#bf616a;">frame_init</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">);
-
-  </span><span style="color:#b48ead;">while </span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">) {
-    discrete_inputs = </span><span style="color:#bf616a;">bsp_read_din</span><span style="color:#c0c5ce;">();
-    </span><span style="color:#bf616a;">bsp_set_dout</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, discrete_inputs &amp; (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">&lt;&lt; </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">) ? </span><span style="color:#d08770;">true </span><span style="color:#c0c5ce;">: </span><span style="color:#d08770;">false</span><span style="color:#c0c5ce;">);
-    </span><span style="color:#bf616a;">frame_wait_for_next</span><span style="color:#c0c5ce;">();
-  }
-
-  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-}
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">bsp.h</span><span>&quot;
+</span><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">frame.h</span><span>&quot;
+</span><span>
+</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span>(</span><span style="color:#b48ead;">void</span><span>) {
+</span><span>  uint32_t discrete_inputs = </span><span style="color:#d08770;">0</span><span>;
+</span><span>  </span><span style="color:#bf616a;">frame_init</span><span>(</span><span style="color:#d08770;">10</span><span>);
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">while </span><span>(</span><span style="color:#d08770;">1</span><span>) {
+</span><span>    discrete_inputs = </span><span style="color:#bf616a;">bsp_read_din</span><span>();
+</span><span>    </span><span style="color:#bf616a;">bsp_set_dout</span><span>(</span><span style="color:#d08770;">0</span><span>, discrete_inputs &amp; (</span><span style="color:#d08770;">1 </span><span>&lt;&lt; </span><span style="color:#d08770;">3</span><span>) ? </span><span style="color:#d08770;">true </span><span>: </span><span style="color:#d08770;">false</span><span>);
+</span><span>    </span><span style="color:#bf616a;">frame_wait_for_next</span><span>();
+</span><span>  }
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span>;
+</span><span>}
 </span></code></pre>
 <p>There is a timing mechanism that initializes a frame length to 10 milliseconds and delays the main loop so that the application logic runs every 10 milliseconds.</p>
 <p>The Board Support Package (BSP) is responsible for reading a bank of discrete input circuits, with their values packed into a 32-bit wide value, 1 bit per channel. Logic polarity is already handled for us and we can trust that a bit being set means that the input circuit is &quot;active.&quot; The value of discrete output 0 is then set based on discrete input channel 3.</p>
@@ -77,28 +76,27 @@
 <p>Test Driven Development simply means we write our test cases first, verify our current code fails these tests, then implement the simplest logic to make the test pass.</p>
 <p>This is not to be confused with Development for Test, which I usually see used to mean developing software in such a way as to facilitate testing. This is important, too, but it misses the point of starting with the tests.</p>
 <p>We're going to focus on testing a new debounce module. After talking with the developer responsible for the main loop logic, we come to an agreement on the interface.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">bsp.h</span><span style="color:#c0c5ce;">&quot;
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">frame.h</span><span style="color:#c0c5ce;">&quot;
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span style="color:#c0c5ce;">&quot;
-
-</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">(</span><span style="color:#b48ead;">void</span><span style="color:#c0c5ce;">) {
-  uint32_t discrete_inputs = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-  uint32_t debounced_inputs = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-  </span><span style="color:#bf616a;">frame_init</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">);
-
-  Debouncer debouncer;
-  </span><span style="color:#bf616a;">debouncer_new</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">);
-
-  </span><span style="color:#b48ead;">while </span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">) {
-    discrete_inputs = </span><span style="color:#bf616a;">bsp_read_din</span><span style="color:#c0c5ce;">();
-    debounced_inputs = </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, discrete_inputs);
-    </span><span style="color:#bf616a;">bsp_set_dout</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, debounced_inputs &amp; (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">&lt;&lt; </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">) ? </span><span style="color:#d08770;">true </span><span style="color:#c0c5ce;">: </span><span style="color:#d08770;">false</span><span style="color:#c0c5ce;">);
-    </span><span style="color:#bf616a;">frame_wait_for_next</span><span style="color:#c0c5ce;">();
-  }
-
-  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-}
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">bsp.h</span><span>&quot;
+</span><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">frame.h</span><span>&quot;
+</span><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span>&quot;
+</span><span>
+</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span>(</span><span style="color:#b48ead;">void</span><span>) {
+</span><span>  uint32_t discrete_inputs = </span><span style="color:#d08770;">0</span><span>;
+</span><span>  uint32_t debounced_inputs = </span><span style="color:#d08770;">0</span><span>;
+</span><span>  </span><span style="color:#bf616a;">frame_init</span><span>(</span><span style="color:#d08770;">10</span><span>);
+</span><span>
+</span><span>  Debouncer debouncer;
+</span><span>  </span><span style="color:#bf616a;">debouncer_new</span><span>(&amp;debouncer, </span><span style="color:#d08770;">5</span><span>);
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">while </span><span>(</span><span style="color:#d08770;">1</span><span>) {
+</span><span>    discrete_inputs = </span><span style="color:#bf616a;">bsp_read_din</span><span>();
+</span><span>    debounced_inputs = </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, discrete_inputs);
+</span><span>    </span><span style="color:#bf616a;">bsp_set_dout</span><span>(</span><span style="color:#d08770;">0</span><span>, debounced_inputs &amp; (</span><span style="color:#d08770;">1 </span><span>&lt;&lt; </span><span style="color:#d08770;">3</span><span>) ? </span><span style="color:#d08770;">true </span><span>: </span><span style="color:#d08770;">false</span><span>);
+</span><span>    </span><span style="color:#bf616a;">frame_wait_for_next</span><span>();
+</span><span>  }
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span>;
+</span><span>}
 </span></code></pre>
 <p>We're pretty sure we'll need to keep track of some kind of state, since debouncing requires knowledge of past values. We'll need to check that each input has been active for 5 frames (50 ms ÷ 10 ms). Wihtout significantly affecting the flow of the main loop, we insert a <code>debouncer_update</code> function in between reading the raw discrete inputs and using that data to set outputs.</p>
 <p>Before we write any code for the implementation of <code>debouncer_new</code> and <code>debouncer_update</code>, we're going to write tests.</p>
@@ -108,386 +106,371 @@
 <p>CGull compiles and runs the application source files locally, relying on the assumption that most C code that works on a desktop will behave the same on the microcontroller. This sounds like a bold assumption, but so long as the architecture has the same data widths, it's not bad. We can also segregate our modules to avoid hardware-dependent functions. Note how in this example, nothing in the debounce logic needs to understand an embedded environment: integers go in and integers come out.</p>
 <h1 id="envrionment-setup">Envrionment Setup</h1>
 <p>We have two folders, one for our existing embedded application, and another for our tests.</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">embedded_project/
- ├ config.proj
- ├ bsp.c
- ├ bsp.h
- ├ debouncer.c
- ├ debouncer.h
- ├ main.c
- └ main.h
-embedded_project_cgull_tests/
- ├ helpers/
- ├ tests/
- └ config.toml
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>embedded_project/
+</span><span> ├ config.proj
+</span><span> ├ bsp.c
+</span><span> ├ bsp.h
+</span><span> ├ debouncer.c
+</span><span> ├ debouncer.h
+</span><span> ├ main.c
+</span><span> └ main.h
+</span><span>embedded_project_cgull_tests/
+</span><span> ├ helpers/
+</span><span> ├ tests/
+</span><span> └ config.toml
 </span></code></pre>
 <p>In <code>embedded_project_cgull_tests/config.toml</code>, we specify where the project source code is and add whatever gcc flags we need to make the compiled code reasonably similar to the embedded processor. We also need to define a test for our debouncer module.</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">target_inc = &quot;../embedded_project&quot;
-target_src = &quot;../embedded_project&quot;
-gcc_flags = [&quot;-m32&quot;]
-
-[test.debouncer]
-depends = [&quot;debouncer.c&quot;]
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>target_inc = &quot;../embedded_project&quot;
+</span><span>target_src = &quot;../embedded_project&quot;
+</span><span>gcc_flags = [&quot;-m32&quot;]
+</span><span>
+</span><span>[test.debouncer]
+</span><span>depends = [&quot;debouncer.c&quot;]
 </span></code></pre>
 <p>CGull will automatically look for a file named <code>test_debouncer.c</code> in the tests folder based on the section name <code>[test.debouncer]</code>. The bare minimum for this file is:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">unity.h</span><span style="color:#c0c5ce;">&quot;
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span style="color:#c0c5ce;">&quot;
-
-</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">() {
-  </span><span style="color:#bf616a;">UNITY_BEGIN</span><span style="color:#c0c5ce;">();
-  </span><span style="color:#bf616a;">UNITY_END</span><span style="color:#c0c5ce;">();
-  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-}
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">unity.h</span><span>&quot;
+</span><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span>&quot;
+</span><span>
+</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>  </span><span style="color:#bf616a;">UNITY_BEGIN</span><span>();
+</span><span>  </span><span style="color:#bf616a;">UNITY_END</span><span>();
+</span><span>  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span>;
+</span><span>}
 </span></code></pre>
 <p>Each module we are testing will be compiled into an executable. Running <code>cgull</code> from the <code>embedded_project_cgull_tests</code> directory should result in:</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">$ cgull
-
------------------------
-0 Tests 0 Failures 0 Ignored
-OK
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cgull
+</span><span>
+</span><span>-----------------------
+</span><span>0 Tests 0 Failures 0 Ignored
+</span><span>OK
 </span></code></pre>
 <p>We haven't written any tests yet, so this isn't surprising. Lets start with a simple test that gives a single input changing over time, and expects the debounced output for all inputs to go high after the fifth occurrence.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#65737e;">// test_debouncer.c
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">unity.h</span><span style="color:#c0c5ce;">&quot;
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span style="color:#c0c5ce;">&quot;
-
-</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">test_basic_debouncing</span><span style="color:#c0c5ce;">(</span><span style="color:#b48ead;">void</span><span style="color:#c0c5ce;">) {
-  Debouncer debouncer;
-  </span><span style="color:#bf616a;">debouncer_new</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">);
-
-  uint32_t in = </span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">;
-
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-}
-
-</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">() {
-  </span><span style="color:#bf616a;">UNITY_BEGIN</span><span style="color:#c0c5ce;">();
-  </span><span style="color:#bf616a;">RUN_TEST</span><span style="color:#c0c5ce;">(test_basic_debouncing);
-  </span><span style="color:#bf616a;">UNITY_END</span><span style="color:#c0c5ce;">();
-  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-}
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#65737e;">// test_debouncer.c
+</span><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">unity.h</span><span>&quot;
+</span><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span>&quot;
+</span><span>
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">test_basic_debouncing</span><span>(</span><span style="color:#b48ead;">void</span><span>) {
+</span><span>  Debouncer debouncer;
+</span><span>  </span><span style="color:#bf616a;">debouncer_new</span><span>(&amp;debouncer, </span><span style="color:#d08770;">5</span><span>);
+</span><span>
+</span><span>  uint32_t in = </span><span style="color:#d08770;">0xffffffff</span><span>;
+</span><span>
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>  </span><span style="color:#bf616a;">UNITY_BEGIN</span><span>();
+</span><span>  </span><span style="color:#bf616a;">RUN_TEST</span><span>(test_basic_debouncing);
+</span><span>  </span><span style="color:#bf616a;">UNITY_END</span><span>();
+</span><span>  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span>;
+</span><span>}
 </span></code></pre>
 <p>Running cgull again, the output reminds us that we haven't written any implementation for our debounce module.</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">$ cgull
-tests/test_debouncer.c: In function ‘test_basic_debouncing’:
-tests/test_debouncer.c:5:3: error: unknown type name ‘Debouncer’
-    5 |   Debouncer debouncer;
-      |   ^~~~~~~~~
-tests/test_debouncer.c:6:3: warning: implicit declaration of function ‘debouncer_new’ [-Wimplicit-function-declaration]
-    6 |   debouncer_new(&amp;debouncer, 0);
-      |   ^~~~~~~~~~~~~
-In file included from /home/lsimons/workspace/cgull/cgull/unity/unity.h:16,
-                 from tests/test_debouncer.c:1:
-tests/test_debouncer.c:12:40: warning: implicit declaration of function ‘debouncer_update’ [-Wimplicit-function-declaration]
-   12 |   TEST_ASSERT_EQUAL_UINT32(0x00000000, debouncer_update(&amp;debouncer, in));
-      |                                        ^~~~~~~~~~~~~~~~
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cgull
+</span><span>tests/test_debouncer.c: In function ‘test_basic_debouncing’:
+</span><span>tests/test_debouncer.c:5:3: error: unknown type name ‘Debouncer’
+</span><span>    5 |   Debouncer debouncer;
+</span><span>      |   ^~~~~~~~~
+</span><span>tests/test_debouncer.c:6:3: warning: implicit declaration of function ‘debouncer_new’ [-Wimplicit-function-declaration]
+</span><span>    6 |   debouncer_new(&amp;debouncer, 0);
+</span><span>      |   ^~~~~~~~~~~~~
+</span><span>In file included from /home/lsimons/workspace/cgull/cgull/unity/unity.h:16,
+</span><span>                 from tests/test_debouncer.c:1:
+</span><span>tests/test_debouncer.c:12:40: warning: implicit declaration of function ‘debouncer_update’ [-Wimplicit-function-declaration]
+</span><span>   12 |   TEST_ASSERT_EQUAL_UINT32(0x00000000, debouncer_update(&amp;debouncer, in));
+</span><span>      |                                        ^~~~~~~~~~~~~~~~
 </span></code></pre>
 <p>We now write code until the errors go away.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#65737e;">// debouncer.h
-</span><span style="color:#b48ead;">#ifndef</span><span style="color:#c0c5ce;"> DEBOUNCER_H_
-</span><span style="color:#b48ead;">#define </span><span style="color:#c0c5ce;">DEBOUNCER_H_
-
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&lt;</span><span style="color:#a3be8c;">stdint.h</span><span style="color:#c0c5ce;">&gt;
-
-typedef </span><span style="color:#b48ead;">struct </span><span style="color:#c0c5ce;">{
-} Debouncer;
-
-</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">debouncer_new</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint8_t </span><span style="color:#bf616a;">threshold</span><span style="color:#c0c5ce;">);
-uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint32_t </span><span style="color:#bf616a;">input</span><span style="color:#c0c5ce;">);
-
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#65737e;">// debouncer.h
+</span><span style="color:#b48ead;">#ifndef</span><span> DEBOUNCER_H_
+</span><span style="color:#b48ead;">#define </span><span>DEBOUNCER_H_
+</span><span>
+</span><span style="color:#b48ead;">#include </span><span>&lt;</span><span style="color:#a3be8c;">stdint.h</span><span>&gt;
+</span><span>
+</span><span style="color:#b48ead;">typedef struct </span><span>{
+</span><span>} Debouncer;
+</span><span>
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">debouncer_new</span><span>(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span>, uint8_t </span><span style="color:#bf616a;">threshold</span><span>);
+</span><span>uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span>(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span>, uint32_t </span><span style="color:#bf616a;">input</span><span>);
+</span><span>
 </span><span style="color:#b48ead;">#endif
-
+</span><span>
 </span><span style="color:#65737e;">// debouncer.c
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span style="color:#c0c5ce;">&quot;
-
-</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">debouncer_new</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint8_t </span><span style="color:#bf616a;">threshold</span><span style="color:#c0c5ce;">) {
-
-}
-
-uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint32_t </span><span style="color:#bf616a;">input</span><span style="color:#c0c5ce;">) {
-
-}
+</span><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span>&quot;
+</span><span>
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">debouncer_new</span><span>(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span>, uint8_t </span><span style="color:#bf616a;">threshold</span><span>) {
+</span><span>
+</span><span>}
+</span><span>
+</span><span>uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span>(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span>, uint32_t </span><span style="color:#bf616a;">input</span><span>) {
+</span><span>
+</span><span>}
 </span></code></pre>
 <p>The cgull result is:</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">$ cgull
-tests/test_debouncer.c:12:test_basic_debouncing:FAIL: Expected 0 Was 1449119692
-
------------------------
-1 Tests 1 Failures 0 Ignored
-FAIL
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cgull
+</span><span>tests/test_debouncer.c:12:test_basic_debouncing:FAIL: Expected 0 Was 1449119692
+</span><span>
+</span><span>-----------------------
+</span><span>1 Tests 1 Failures 0 Ignored
+</span><span>FAIL
 </span></code></pre>
 <p>We can compile successfully, but we haven't implemented any debouncing logic, so the single test case fails. Our first stab will be to use a counter for each input bit and simply increment until the bit has been set the right number of times.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#65737e;">// debouncer.h
-</span><span style="color:#c0c5ce;">...
-</span><span style="color:#b48ead;">typedef struct </span><span style="color:#c0c5ce;">{
-  uint8_t count[</span><span style="color:#d08770;">32</span><span style="color:#c0c5ce;">];
-  uint32_t threshold;
-} Debouncer;
-...
-
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#65737e;">// debouncer.h
+</span><span>...
+</span><span style="color:#b48ead;">typedef struct </span><span>{
+</span><span>  uint8_t count[</span><span style="color:#d08770;">32</span><span>];
+</span><span>  uint32_t threshold;
+</span><span>} Debouncer;
+</span><span>...
+</span><span>
 </span><span style="color:#65737e;">// debouncer.c
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&lt;</span><span style="color:#a3be8c;">stdbool.h</span><span style="color:#c0c5ce;">&gt;
-</span><span style="color:#b48ead;">#include </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span style="color:#c0c5ce;">&quot;
-
-</span><span style="color:#b48ead;">#define </span><span style="color:#c0c5ce;">NUM_DEBOUNCE_INPUTS </span><span style="color:#d08770;">32
-
-</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">debouncer_new</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint8_t </span><span style="color:#bf616a;">threshold</span><span style="color:#c0c5ce;">) {
-  uint32_t i;
-
-  </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">(i = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
-    debouncer-&gt;count[i] = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-  }
-
-  debouncer-&gt;threshold = threshold;
-}
-
-uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint32_t </span><span style="color:#bf616a;">input</span><span style="color:#c0c5ce;">) {
-  uint32_t i;
-  uint32_t result = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-  </span><span style="color:#b48ead;">bool</span><span style="color:#c0c5ce;"> input_is_active;
-
-  </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">(i = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
-    input_is_active = (input &amp; (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">&lt;&lt; i)) != </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-
-    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(input_is_active) {
-      debouncer-&gt;count[i]++;
-    }
-
-    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(debouncer-&gt;count[i] &gt;= debouncer-&gt;threshold) {
-      result += (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">&lt;&lt; i);
-    }
-  }
-
-  </span><span style="color:#b48ead;">return</span><span style="color:#c0c5ce;"> result;
-}
+</span><span style="color:#b48ead;">#include </span><span>&lt;</span><span style="color:#a3be8c;">stdbool.h</span><span>&gt;
+</span><span style="color:#b48ead;">#include </span><span>&quot;</span><span style="color:#a3be8c;">debouncer.h</span><span>&quot;
+</span><span>
+</span><span style="color:#b48ead;">#define </span><span>NUM_DEBOUNCE_INPUTS </span><span style="color:#d08770;">32
+</span><span>
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">debouncer_new</span><span>(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span>, uint8_t </span><span style="color:#bf616a;">threshold</span><span>) {
+</span><span>  uint32_t i;
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">for </span><span>(i = </span><span style="color:#d08770;">0</span><span>; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
+</span><span>    debouncer-&gt;count[i] = </span><span style="color:#d08770;">0</span><span>;
+</span><span>  }
+</span><span>
+</span><span>  debouncer-&gt;threshold = threshold;
+</span><span>}
+</span><span>
+</span><span>uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span>(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span>, uint32_t </span><span style="color:#bf616a;">input</span><span>) {
+</span><span>  uint32_t i;
+</span><span>  uint32_t result = </span><span style="color:#d08770;">0</span><span>;
+</span><span>  </span><span style="color:#b48ead;">bool</span><span> input_is_active;
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">for </span><span>(i = </span><span style="color:#d08770;">0</span><span>; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
+</span><span>    input_is_active = (input &amp; (</span><span style="color:#d08770;">1 </span><span>&lt;&lt; i)) != </span><span style="color:#d08770;">0</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(input_is_active) {
+</span><span>      debouncer-&gt;count[i]++;
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(debouncer-&gt;count[i] &gt;= debouncer-&gt;threshold) {
+</span><span>      result += (</span><span style="color:#d08770;">1 </span><span>&lt;&lt; i);
+</span><span>    }
+</span><span>  }
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">return</span><span> result;
+</span><span>}
 </span></code></pre>
 <p>Now, when we run cgull we get:</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">$ cgull
-tests/test_debouncer.c:19:test_basic_debouncing:PASS
-
------------------------
-1 Tests 0 Failures 0 Ignored
-OK
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cgull
+</span><span>tests/test_debouncer.c:19:test_basic_debouncing:PASS
+</span><span>
+</span><span>-----------------------
+</span><span>1 Tests 0 Failures 0 Ignored
+</span><span>OK
 </span></code></pre>
 <p>We've done the bare minimum to pass the test. Well, it's not malicious bare minimum: we've identified that we need to treat each input separately. Lets add another test case to be sure.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#65737e;">//test_debouncer.c
-</span><span style="color:#c0c5ce;">...
-</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">test_debouncing_of_some_inputs</span><span style="color:#c0c5ce;">(</span><span style="color:#b48ead;">void</span><span style="color:#c0c5ce;">) {
-  Debouncer debouncer;
-  </span><span style="color:#bf616a;">debouncer_new</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">);
-
-  uint32_t in = </span><span style="color:#d08770;">0xAAAA5555</span><span style="color:#c0c5ce;">;
-
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xAAAA5555</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-}
-
-</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">() {
-  </span><span style="color:#bf616a;">UNITY_BEGIN</span><span style="color:#c0c5ce;">();
-  </span><span style="color:#bf616a;">RUN_TEST</span><span style="color:#c0c5ce;">(test_basic_debouncing);
-  </span><span style="color:#bf616a;">RUN_TEST</span><span style="color:#c0c5ce;">(test_debouncing_of_some_inputs);
-  </span><span style="color:#bf616a;">UNITY_END</span><span style="color:#c0c5ce;">();
-  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-}
-</span></code></pre><pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">lsimons@bestever:~/workspace/cgull/examples/embedded_project_cgull_tests$ cgull
-tests/test_debouncer.c:32:test_basic_debouncing:PASS
-tests/test_debouncer.c:33:test_basic_debouncing_of_some_inputs:PASS
-
------------------------
-2 Tests 0 Failures 0 Ignored
-OK
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#65737e;">//test_debouncer.c
+</span><span>...
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">test_debouncing_of_some_inputs</span><span>(</span><span style="color:#b48ead;">void</span><span>) {
+</span><span>  Debouncer debouncer;
+</span><span>  </span><span style="color:#bf616a;">debouncer_new</span><span>(&amp;debouncer, </span><span style="color:#d08770;">5</span><span>);
+</span><span>
+</span><span>  uint32_t in = </span><span style="color:#d08770;">0xAAAA5555</span><span>;
+</span><span>
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xAAAA5555</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>  </span><span style="color:#bf616a;">UNITY_BEGIN</span><span>();
+</span><span>  </span><span style="color:#bf616a;">RUN_TEST</span><span>(test_basic_debouncing);
+</span><span>  </span><span style="color:#bf616a;">RUN_TEST</span><span>(test_debouncing_of_some_inputs);
+</span><span>  </span><span style="color:#bf616a;">UNITY_END</span><span>();
+</span><span>  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span>;
+</span><span>}
+</span></code></pre>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>lsimons@bestever:~/workspace/cgull/examples/embedded_project_cgull_tests$ cgull
+</span><span>tests/test_debouncer.c:32:test_basic_debouncing:PASS
+</span><span>tests/test_debouncer.c:33:test_basic_debouncing_of_some_inputs:PASS
+</span><span>
+</span><span>-----------------------
+</span><span>2 Tests 0 Failures 0 Ignored
+</span><span>OK
 </span></code></pre>
 <p>We haven't checked what happens when an input is deasserted. We expect (per hypothetical requirements) that the debounce is symmetrical. 5 frames of deasserted inputs should cause the debounced value to go to 0.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#65737e;">// test_debouncer.c
-</span><span style="color:#c0c5ce;">...
-</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">test_debouncing_on_and_off</span><span style="color:#c0c5ce;">(</span><span style="color:#b48ead;">void</span><span style="color:#c0c5ce;">) {
-  Debouncer debouncer;
-  </span><span style="color:#bf616a;">debouncer_new</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">);
-
-  uint32_t in = </span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">;
-
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-}
-
-</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span style="color:#c0c5ce;">() {
-  </span><span style="color:#bf616a;">UNITY_BEGIN</span><span style="color:#c0c5ce;">();
-  </span><span style="color:#bf616a;">RUN_TEST</span><span style="color:#c0c5ce;">(test_basic_debouncing);
-  </span><span style="color:#bf616a;">RUN_TEST</span><span style="color:#c0c5ce;">(test_debouncing_of_some_inputs);
-  </span><span style="color:#bf616a;">RUN_TEST</span><span style="color:#c0c5ce;">(test_debouncing_on_and_off);
-  </span><span style="color:#bf616a;">UNITY_END</span><span style="color:#c0c5ce;">();
-  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-}
-</span></code></pre><pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">$ cgull
-tests/test_debouncer.c:50:test_basic_debouncing:PASS
-tests/test_debouncer.c:51:test_debouncing_of_some_inputs:PASS
-tests/test_debouncer.c:45:test_debouncing_on_and_off:FAIL: Expected 0 Was 4294967295
-
------------------------
-3 Tests 1 Failures 0 Ignored
-FAIL
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#65737e;">// test_debouncer.c
+</span><span>...
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">test_debouncing_on_and_off</span><span>(</span><span style="color:#b48ead;">void</span><span>) {
+</span><span>  Debouncer debouncer;
+</span><span>  </span><span style="color:#bf616a;">debouncer_new</span><span>(&amp;debouncer, </span><span style="color:#d08770;">5</span><span>);
+</span><span>
+</span><span>  uint32_t in = </span><span style="color:#d08770;">0xffffffff</span><span>;
+</span><span>
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">int </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>  </span><span style="color:#bf616a;">UNITY_BEGIN</span><span>();
+</span><span>  </span><span style="color:#bf616a;">RUN_TEST</span><span>(test_basic_debouncing);
+</span><span>  </span><span style="color:#bf616a;">RUN_TEST</span><span>(test_debouncing_of_some_inputs);
+</span><span>  </span><span style="color:#bf616a;">RUN_TEST</span><span>(test_debouncing_on_and_off);
+</span><span>  </span><span style="color:#bf616a;">UNITY_END</span><span>();
+</span><span>  </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">0</span><span>;
+</span><span>}
+</span></code></pre>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cgull
+</span><span>tests/test_debouncer.c:50:test_basic_debouncing:PASS
+</span><span>tests/test_debouncer.c:51:test_debouncing_of_some_inputs:PASS
+</span><span>tests/test_debouncer.c:45:test_debouncing_on_and_off:FAIL: Expected 0 Was 4294967295
+</span><span>
+</span><span>-----------------------
+</span><span>3 Tests 1 Failures 0 Ignored
+</span><span>FAIL
 </span></code></pre>
 <p>And we're failing again. Since we're counting in both directions, we now need some state to keep track of which way each input was at.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#65737e;">// debouncer.h
-</span><span style="color:#c0c5ce;">...
-</span><span style="color:#b48ead;">typedef struct </span><span style="color:#c0c5ce;">{
-  uint8_t count[</span><span style="color:#d08770;">32</span><span style="color:#c0c5ce;">];
-  uint8_t threshold;
-  uint32_t state;
-} Debouncer;
-...
-
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#65737e;">// debouncer.h
+</span><span>...
+</span><span style="color:#b48ead;">typedef struct </span><span>{
+</span><span>  uint8_t count[</span><span style="color:#d08770;">32</span><span>];
+</span><span>  uint8_t threshold;
+</span><span>  uint32_t state;
+</span><span>} Debouncer;
+</span><span>...
+</span><span>
 </span><span style="color:#65737e;">// debouncer.c
-</span><span style="color:#c0c5ce;">...
-</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">debouncer_new</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint8_t </span><span style="color:#bf616a;">threshold</span><span style="color:#c0c5ce;">) {
-  uint32_t i;
-
-  </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">(i = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
-    debouncer-&gt;count[i] = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-  }
-
-  debouncer-&gt;threshold = threshold;
-  debouncer-&gt;state = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-}
-
-uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint32_t </span><span style="color:#bf616a;">input</span><span style="color:#c0c5ce;">) {
-  uint32_t i;
-  uint32_t new_state = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-  </span><span style="color:#b48ead;">bool</span><span style="color:#c0c5ce;"> input_is_active;
-  </span><span style="color:#b48ead;">bool</span><span style="color:#c0c5ce;"> debounce_was_active;
-
-  </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">(i = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
-    input_is_active = (input &amp; (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">&lt;&lt; i)) != </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-    debounce_was_active = (debouncer-&gt;state &amp; (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">&lt;&lt; i)) != </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">;
-
-    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(input_is_active) {
-      debouncer-&gt;count[i]++;
-    } </span><span style="color:#b48ead;">else </span><span style="color:#c0c5ce;">{
-      </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(debouncer-&gt;count[i] &gt; </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">) {
-        debouncer-&gt;count[i]--;
-      }
-    }
-
-    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(debouncer-&gt;count[i] &gt;= debouncer-&gt;threshold) {
-      new_state += (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">&lt;&lt; i);
-    } </span><span style="color:#b48ead;">else if </span><span style="color:#c0c5ce;">(debounce_was_active &amp;&amp; (debouncer-&gt;count[i] != </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">)) {
-      new_state += (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">&lt;&lt; i);
-    }
-  }
-
-  debouncer-&gt;state = new_state;
-  </span><span style="color:#b48ead;">return</span><span style="color:#c0c5ce;"> debouncer-&gt;state;
-}
-</span></code></pre><pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">$ cgull
-tests/test_debouncer.c:50:test_basic_debouncing:PASS
-tests/test_debouncer.c:51:test_debouncing_of_some_inputs:PASS
-tests/test_debouncer.c:52:test_debouncing_on_and_off:PASS
-
------------------------
-3 Tests 0 Failures 0 Ignored
-OK
+</span><span>...
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">debouncer_new</span><span>(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span>, uint8_t </span><span style="color:#bf616a;">threshold</span><span>) {
+</span><span>  uint32_t i;
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">for </span><span>(i = </span><span style="color:#d08770;">0</span><span>; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
+</span><span>    debouncer-&gt;count[i] = </span><span style="color:#d08770;">0</span><span>;
+</span><span>  }
+</span><span>
+</span><span>  debouncer-&gt;threshold = threshold;
+</span><span>  debouncer-&gt;state = </span><span style="color:#d08770;">0</span><span>;
+</span><span>}
+</span><span>
+</span><span>uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span>(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span>, uint32_t </span><span style="color:#bf616a;">input</span><span>) {
+</span><span>  uint32_t i;
+</span><span>  uint32_t new_state = </span><span style="color:#d08770;">0</span><span>;
+</span><span>  </span><span style="color:#b48ead;">bool</span><span> input_is_active;
+</span><span>  </span><span style="color:#b48ead;">bool</span><span> debounce_was_active;
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">for </span><span>(i = </span><span style="color:#d08770;">0</span><span>; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
+</span><span>    input_is_active = (input &amp; (</span><span style="color:#d08770;">1 </span><span>&lt;&lt; i)) != </span><span style="color:#d08770;">0</span><span>;
+</span><span>    debounce_was_active = (debouncer-&gt;state &amp; (</span><span style="color:#d08770;">1 </span><span>&lt;&lt; i)) != </span><span style="color:#d08770;">0</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(input_is_active) {
+</span><span>      debouncer-&gt;count[i]++;
+</span><span>    } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>      </span><span style="color:#b48ead;">if </span><span>(debouncer-&gt;count[i] &gt; </span><span style="color:#d08770;">0</span><span>) {
+</span><span>        debouncer-&gt;count[i]--;
+</span><span>      }
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(debouncer-&gt;count[i] &gt;= debouncer-&gt;threshold) {
+</span><span>      new_state += (</span><span style="color:#d08770;">1 </span><span>&lt;&lt; i);
+</span><span>    } </span><span style="color:#b48ead;">else if </span><span>(debounce_was_active &amp;&amp; (debouncer-&gt;count[i] != </span><span style="color:#d08770;">0</span><span>)) {
+</span><span>      new_state += (</span><span style="color:#d08770;">1 </span><span>&lt;&lt; i);
+</span><span>    }
+</span><span>  }
+</span><span>
+</span><span>  debouncer-&gt;state = new_state;
+</span><span>  </span><span style="color:#b48ead;">return</span><span> debouncer-&gt;state;
+</span><span>}
+</span></code></pre>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cgull
+</span><span>tests/test_debouncer.c:50:test_basic_debouncing:PASS
+</span><span>tests/test_debouncer.c:51:test_debouncing_of_some_inputs:PASS
+</span><span>tests/test_debouncer.c:52:test_debouncing_on_and_off:PASS
+</span><span>
+</span><span>-----------------------
+</span><span>3 Tests 0 Failures 0 Ignored
+</span><span>OK
 </span></code></pre>
 <p>There are also some tests that are much easier to run in this fashion than on real hardware. We know that this code is time dependent, and we are suspicious about what happens if the inputs are in the same state for many calls. This would be incredibly time prohibitive in an emulator.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#65737e;">// test_debouncer.c
-</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">test_debouncing_for_a_while</span><span style="color:#c0c5ce;">(</span><span style="color:#b48ead;">void</span><span style="color:#c0c5ce;">) {
-  Debouncer debouncer;
-  </span><span style="color:#bf616a;">debouncer_new</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">5</span><span style="color:#c0c5ce;">);
-
-  uint32_t in = </span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">;
-
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-
-  </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">(uint64_t i = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">; i &lt; </span><span style="color:#d08770;">10000</span><span style="color:#c0c5ce;">; i++) {
-    </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, in));
-  }
-
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0xffffffff</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-
-  </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">(uint64_t i = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">; i &lt; </span><span style="color:#d08770;">10000</span><span style="color:#c0c5ce;">; i++) {
-    </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0x00000000</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">debouncer_update</span><span style="color:#c0c5ce;">(&amp;debouncer, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">));
-  }
-}
-</span></code></pre><pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">$ cgull
-tests/test_debouncer.c:75:test_basic_debouncing:PASS
-tests/test_debouncer.c:76:test_debouncing_of_some_inputs:PASS
-tests/test_debouncer.c:77:test_debouncing_on_and_off:PASS
-tests/test_debouncer.c:60:test_debouncing_for_a_while:FAIL: Expected 4294967295 Was 0
-
------------------------
-4 Tests 1 Failures 0 Ignored
-FAIL
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span style="color:#65737e;">// test_debouncer.c
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">test_debouncing_for_a_while</span><span>(</span><span style="color:#b48ead;">void</span><span>) {
+</span><span>  Debouncer debouncer;
+</span><span>  </span><span style="color:#bf616a;">debouncer_new</span><span>(&amp;debouncer, </span><span style="color:#d08770;">5</span><span>);
+</span><span>
+</span><span>  uint32_t in = </span><span style="color:#d08770;">0xffffffff</span><span>;
+</span><span>
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">for </span><span>(uint64_t i = </span><span style="color:#d08770;">0</span><span>; i &lt; </span><span style="color:#d08770;">10000</span><span>; i++) {
+</span><span>    </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, in));
+</span><span>  }
+</span><span>
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>  </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0xffffffff</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">for </span><span>(uint64_t i = </span><span style="color:#d08770;">0</span><span>; i &lt; </span><span style="color:#d08770;">10000</span><span>; i++) {
+</span><span>    </span><span style="color:#bf616a;">TEST_ASSERT_EQUAL_UINT32</span><span>(</span><span style="color:#d08770;">0x00000000</span><span>, </span><span style="color:#bf616a;">debouncer_update</span><span>(&amp;debouncer, </span><span style="color:#d08770;">0</span><span>));
+</span><span>  }
+</span><span>}
+</span></code></pre>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cgull
+</span><span>tests/test_debouncer.c:75:test_basic_debouncing:PASS
+</span><span>tests/test_debouncer.c:76:test_debouncing_of_some_inputs:PASS
+</span><span>tests/test_debouncer.c:77:test_debouncing_on_and_off:PASS
+</span><span>tests/test_debouncer.c:60:test_debouncing_for_a_while:FAIL: Expected 4294967295 Was 0
+</span><span>
+</span><span>-----------------------
+</span><span>4 Tests 1 Failures 0 Ignored
+</span><span>FAIL
 </span></code></pre>
 <p>This test exposed an issue when counting upwards. Just like we need to not count below zero, we want to limit the counter once it hits the threshold.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-c" data-lang="c"><span style="color:#c0c5ce;">...
+<pre data-lang="c" style="background-color:#2b303b;color:#c0c5ce;" class="language-c "><code class="language-c" data-lang="c"><span>...
 </span><span style="color:#65737e;">// debouncer.c
-</span><span style="color:#c0c5ce;">uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span style="color:#c0c5ce;">(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span style="color:#c0c5ce;">, uint32_t </span><span style="color:#bf616a;">input</span><span style="color:#c0c5ce;">) {
-...
-
-  </span><span style="color:#b48ead;">for </span><span style="color:#c0c5ce;">(i = </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
-    ...
-
-    </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(input_is_active) {
-      </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(debouncer-&gt;count[i] &lt; debouncer-&gt;threshold) {
-        debouncer-&gt;count[i]++;
-      }
-    } </span><span style="color:#b48ead;">else </span><span style="color:#c0c5ce;">{
-      </span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">(debouncer-&gt;count[i] &gt; </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">) {
-        debouncer-&gt;count[i]--;
-      }
-    }
-
-    ...
-}
-</span></code></pre><pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">$ cgull
-tests/test_debouncer.c:75:test_basic_debouncing:PASS
-tests/test_debouncer.c:76:test_debouncing_of_some_inputs:PASS
-tests/test_debouncer.c:77:test_debouncing_on_and_off:PASS
-tests/test_debouncer.c:78:test_debouncing_for_a_while:PASS
-
------------------------
-4 Tests 0 Failures 0 Ignored
-OK
+</span><span>uint32_t </span><span style="color:#8fa1b3;">debouncer_update</span><span>(Debouncer *</span><span style="color:#bf616a;">debouncer</span><span>, uint32_t </span><span style="color:#bf616a;">input</span><span>) {
+</span><span>...
+</span><span>
+</span><span>  </span><span style="color:#b48ead;">for </span><span>(i = </span><span style="color:#d08770;">0</span><span>; i &lt; NUM_DEBOUNCE_INPUTS; i++) {
+</span><span>    ...
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(input_is_active) {
+</span><span>      </span><span style="color:#b48ead;">if </span><span>(debouncer-&gt;count[i] &lt; debouncer-&gt;threshold) {
+</span><span>        debouncer-&gt;count[i]++;
+</span><span>      }
+</span><span>    } </span><span style="color:#b48ead;">else </span><span>{
+</span><span>      </span><span style="color:#b48ead;">if </span><span>(debouncer-&gt;count[i] &gt; </span><span style="color:#d08770;">0</span><span>) {
+</span><span>        debouncer-&gt;count[i]--;
+</span><span>      }
+</span><span>    }
+</span><span>
+</span><span>    ...
+</span><span>}
+</span></code></pre>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cgull
+</span><span>tests/test_debouncer.c:75:test_basic_debouncing:PASS
+</span><span>tests/test_debouncer.c:76:test_debouncing_of_some_inputs:PASS
+</span><span>tests/test_debouncer.c:77:test_debouncing_on_and_off:PASS
+</span><span>tests/test_debouncer.c:78:test_debouncing_for_a_while:PASS
+</span><span>
+</span><span>-----------------------
+</span><span>4 Tests 0 Failures 0 Ignored
+</span><span>OK
 </span></code></pre>
 <p>You can create all kinds of tests around staggering the activation of inputs and watching for unexpected effects in the outputs. This process is the basic idea of TDD. As our test definition gets better, our code gets better. If a fix breaks an existing test in your suite, you'll know immediately.</p>
 <h1 id="but-you-made-fun-of-printf">But You Made Fun of <code>printf</code></h1>
@@ -524,7 +507,7 @@ OK
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

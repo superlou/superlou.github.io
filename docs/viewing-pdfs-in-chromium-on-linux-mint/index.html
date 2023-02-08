@@ -9,12 +9,12 @@
     <title>Viewing PDFs in Chromium on Linux Mint</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 
 
 </head>
@@ -52,8 +52,7 @@
         <p>Since the PDF library is not free software, it isn’t included with the distribution of Chromium. To get PDF support in Chromium:</p>
 <span id="continue-reading"></span>
 <p>Download the appropriate DEB package for your system from the google chrome download page.  Using the archive manager, extract libpdf.so from /opt/google/chrome/.  I extracted the file to my desktop.  Copy the library into your chromium installation libs:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-sh" data-lang="sh"><span style="color:#bf616a;">sudo</span><span style="color:#c0c5ce;"> cp </span><span style="color:#bf616a;">~</span><span style="color:#c0c5ce;">/Desktop/libpdf.so /usr/lib/chromium-browser
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">sudo</span><span> cp </span><span style="color:#bf616a;">~</span><span>/Desktop/libpdf.so /usr/lib/chromium-browser
 </span></code></pre>
 <p>Restart Chromium if you have it open, and verify that the Chrome PDF Viewer is enabled via about:plugins in the URL bar.</p>
 <p>Source: http://askubuntu.com/questions/12584/why-doesnt-chromium-have-chrome-pdf-viewer-plugin</p>
@@ -83,7 +82,7 @@
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

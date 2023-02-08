@@ -9,17 +9,17 @@
     <title>Deskbot Part 2, Hardware Prototype</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 
 
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.css">
-<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.js"></script>
-<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;auto-render.js"></script>
+<link rel="stylesheet" href="https://www.louissimons.com/katex.css">
+<script defer src="https://www.louissimons.com/katex.js"></script>
+<script defer src="https://www.louissimons.com/auto-render.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         renderMathInElement(document.body, {
@@ -94,12 +94,11 @@
 <h1 id="software">Software</h1>
 <p>Raspian is used as the RPi's OS.  To keep the software readable, I oscillated between high level languages, Ruby and Python.  I like the Ruby syntax better, but  the numerical computing libraries for Python are much more mature, and I later found Cython to be a critical tool for improving performance.</p>
 <p><a href="https://github.com/sarfata/pi-blaster">Pi-blaster</a> is used to create PWM signals on the RPi's GPIO pins.  The <a href="https://github.com/superlou/deskbot/tree/master/code">code for controlling the servos</a> is wrapped in a pair of helper classes: <code>PiBlasterServos</code>, and <code>Servo</code>.  These classes abstract the process of interpolating a servo angular position to a PWM period and writing it to <code>/dev/pi-blaster</code>.  Controlling a servo is done like so:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#65737e;"># parameters are the 0 degs PWM period, -90 degs, and +90 degs
-</span><span style="color:#c0c5ce;">s0 = </span><span style="color:#bf616a;">Servo</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">0.15</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0.065</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0.225</span><span style="color:#c0c5ce;">)  
-pbs = </span><span style="color:#bf616a;">PiBlasterServos</span><span style="color:#c0c5ce;">()
-pbs.</span><span style="color:#bf616a;">add</span><span style="color:#c0c5ce;">(s0, </span><span style="color:#d08770;">18</span><span style="color:#c0c5ce;">)  </span><span style="color:#65737e;"># use pin 18
-</span><span style="color:#c0c5ce;">pbs[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] = </span><span style="color:#d08770;">0.0     </span><span style="color:#65737e;"># set the first servo added to 0 degrees
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#65737e;"># parameters are the 0 degs PWM period, -90 degs, and +90 degs
+</span><span>s0 = </span><span style="color:#bf616a;">Servo</span><span>(</span><span style="color:#d08770;">0.15</span><span>, </span><span style="color:#d08770;">0.065</span><span>, </span><span style="color:#d08770;">0.225</span><span>)  
+</span><span>pbs = </span><span style="color:#bf616a;">PiBlasterServos</span><span>()
+</span><span>pbs.</span><span style="color:#bf616a;">add</span><span>(s0, </span><span style="color:#d08770;">18</span><span>)  </span><span style="color:#65737e;"># use pin 18
+</span><span>pbs[</span><span style="color:#d08770;">0</span><span>] = </span><span style="color:#d08770;">0.0     </span><span style="color:#65737e;"># set the first servo added to 0 degrees
 </span></code></pre>
 <p>By varying the position of the 4 servos in time, we can start animating the robot.</p>
 <p><iframe src="https://player.vimeo.com/video/136165642" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></p>
@@ -129,7 +128,7 @@ pbs.</span><span style="color:#bf616a;">add</span><span style="color:#c0c5ce;">(
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

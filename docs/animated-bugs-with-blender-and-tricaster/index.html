@@ -9,12 +9,12 @@
     <title>Animated Bugs with Blender and Tricaster</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 
 
 </head>
@@ -62,11 +62,10 @@
 </ul>
 <p>Tricaster supports transparency in the DDR through Quicktime videos with alpha.  Since Blender doesn’t render (at least on my system) directly to this format, we’ll output a series of PNGs and combine them later into the video.  By rendering to “//render/”, I’ll get a folder with a set of PNG files titled 0001.png, 0002.png, 0003.png, etc.  Make sure that “RGBA” is selected so that we have the alpha channel for transparency.</p>
 <p><img src="https://www.louissimons.com/animated-bugs-with-blender-and-tricaster/Screenshot-from-2014-08-31-153054.png" alt="Blender bug output settings" /></p>
-<p>The final Blender file is available for reference <a href="https://www.louissimons.com/animated-bugs-with-blender-and-tricaster/bug.blend">here</a>.</p>
+<p>The final Blender file is available for reference <a href="bug.blend">here</a>.</p>
 <h1 id="merging-the-image-sequence">Merging the Image Sequence</h1>
 <p>We’ll create the video from our rendered image sequence using Libav‘s avconv utility.  It’s an easy one-liner:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-sh" data-lang="sh"><span style="color:#bf616a;">avconv -r</span><span style="color:#c0c5ce;"> 29.97</span><span style="color:#bf616a;"> -i</span><span style="color:#c0c5ce;"> render/%</span><span style="color:#d08770;">4</span><span style="color:#c0c5ce;">d.png</span><span style="color:#bf616a;"> -vcodec</span><span style="color:#c0c5ce;"> png bug.mov
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">avconv -r</span><span> 29.97</span><span style="color:#bf616a;"> -i</span><span> render/%</span><span style="color:#d08770;">4</span><span>d.png</span><span style="color:#bf616a;"> -vcodec</span><span> png bug.mov
 </span></code></pre>
 <p>This explicitly tells avconv the framerate to use, the location and filename format of the images (%4d refers to a 4-digit integer), the video codec, and the output wrapper.  Once done, you should have .mov file that you can play in your player of choice.   The area where the video is fully transparent is typically black, though it may vary from player to player.  Note that these files will be pretty large because of the codec we’re using.  My 2 minute bug came to around 100 MB.</p>
 <h1 id="setting-up-tricaster">Setting Up Tricaster</h1>
@@ -106,7 +105,7 @@
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

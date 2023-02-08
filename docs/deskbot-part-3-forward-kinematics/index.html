@@ -9,17 +9,17 @@
     <title>Deskbot Part 3, Forward Kinematics</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 
 
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.css">
-<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.js"></script>
-<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;auto-render.js"></script>
+<link rel="stylesheet" href="https://www.louissimons.com/katex.css">
+<script defer src="https://www.louissimons.com/katex.js"></script>
+<script defer src="https://www.louissimons.com/auto-render.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         renderMathInElement(document.body, {
@@ -90,26 +90,25 @@ l sin(\gamma_i)
 \end{bmatrix}
 $$</p>
 <p>Now, the problem is, we don't know $\gamma_i$.  Fortunately, we can construct three equations to solve for these: the distance between any to $P_i$ is fixed by the geometry of the platform.  To use fsolve from SciPy's optimization package to solve simultaneous functions, we need to write a minimization function.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">DeskbotModel</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">object</span><span style="color:#eff1f5;">):
-    </span><span style="color:#d08770;">...
-
-    </span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">errors</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">p</span><span style="color:#c0c5ce;">):
-        gamma_0, gamma_1, gamma_2 = p
-        gamma = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([gamma_0, gamma_1, gamma_2])
-
-        </span><span style="color:#65737e;"># Determine positions of platform points
-        </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([
-            </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.k[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.m * np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(np.pi + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.theta_b) * np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(gamma),
-            </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.k[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.m * np.</span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(np.pi + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.theta_b) * np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(gamma),
-            </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.k[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] + </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.m * np.</span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(gamma),
-        ])
-
-        d01 = np.linalg.</span><span style="color:#bf616a;">norm</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">])
-        d12 = np.linalg.</span><span style="color:#bf616a;">norm</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">])
-        d20 = np.linalg.</span><span style="color:#bf616a;">norm</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.p[:, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])
-
-        </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">(d01 - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.d[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">], d12 - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.d[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">], d20 - </span><span style="color:#bf616a;">self</span><span style="color:#c0c5ce;">.d[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">])
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">class </span><span style="color:#ebcb8b;">DeskbotModel</span><span style="color:#eff1f5;">(</span><span style="color:#a3be8c;">object</span><span style="color:#eff1f5;">):
+</span><span>    </span><span style="color:#d08770;">...
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">errors</span><span>(</span><span style="color:#bf616a;">self</span><span>, </span><span style="color:#bf616a;">p</span><span>):
+</span><span>        gamma_0, gamma_1, gamma_2 = p
+</span><span>        gamma = np.</span><span style="color:#bf616a;">array</span><span>([gamma_0, gamma_1, gamma_2])
+</span><span>
+</span><span>        </span><span style="color:#65737e;"># Determine positions of platform points
+</span><span>        </span><span style="color:#bf616a;">self</span><span>.p = np.</span><span style="color:#bf616a;">array</span><span>([
+</span><span>            </span><span style="color:#bf616a;">self</span><span>.k[</span><span style="color:#d08770;">0</span><span>] + </span><span style="color:#bf616a;">self</span><span>.m * np.</span><span style="color:#bf616a;">cos</span><span>(np.pi + </span><span style="color:#bf616a;">self</span><span>.theta_b) * np.</span><span style="color:#bf616a;">cos</span><span>(gamma),
+</span><span>            </span><span style="color:#bf616a;">self</span><span>.k[</span><span style="color:#d08770;">1</span><span>] + </span><span style="color:#bf616a;">self</span><span>.m * np.</span><span style="color:#bf616a;">sin</span><span>(np.pi + </span><span style="color:#bf616a;">self</span><span>.theta_b) * np.</span><span style="color:#bf616a;">cos</span><span>(gamma),
+</span><span>            </span><span style="color:#bf616a;">self</span><span>.k[</span><span style="color:#d08770;">2</span><span>] + </span><span style="color:#bf616a;">self</span><span>.m * np.</span><span style="color:#bf616a;">sin</span><span>(gamma),
+</span><span>        ])
+</span><span>
+</span><span>        d01 = np.linalg.</span><span style="color:#bf616a;">norm</span><span>(</span><span style="color:#bf616a;">self</span><span>.p[:, </span><span style="color:#d08770;">0</span><span>] - </span><span style="color:#bf616a;">self</span><span>.p[:, </span><span style="color:#d08770;">1</span><span>])
+</span><span>        d12 = np.linalg.</span><span style="color:#bf616a;">norm</span><span>(</span><span style="color:#bf616a;">self</span><span>.p[:, </span><span style="color:#d08770;">1</span><span>] - </span><span style="color:#bf616a;">self</span><span>.p[:, </span><span style="color:#d08770;">2</span><span>])
+</span><span>        d20 = np.linalg.</span><span style="color:#bf616a;">norm</span><span>(</span><span style="color:#bf616a;">self</span><span>.p[:, </span><span style="color:#d08770;">2</span><span>] - </span><span style="color:#bf616a;">self</span><span>.p[:, </span><span style="color:#d08770;">0</span><span>])
+</span><span>
+</span><span>        </span><span style="color:#b48ead;">return </span><span>(d01 - </span><span style="color:#bf616a;">self</span><span>.d[</span><span style="color:#d08770;">0</span><span>], d12 - </span><span style="color:#bf616a;">self</span><span>.d[</span><span style="color:#d08770;">1</span><span>], d20 - </span><span style="color:#bf616a;">self</span><span>.d[</span><span style="color:#d08770;">2</span><span>])
 </span></code></pre>
 <p>The array of three gamma values is then found by <code>optimize.fsolve(self.errors, (1.57, 1.57, 1.57))</code>.  Our initial guesses are $\pi/2$, a 90 degree bend at each knee, in the hope of the solver picking the platform position above our global reference frame, as there is another solution (probably multiple).  After solving, we can then determine the location of all 3 platform points.  Everything after that is a little bit of vector math, but is simple serial links to solve for the geometry.</p>
 
@@ -138,7 +137,7 @@ $$</p>
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

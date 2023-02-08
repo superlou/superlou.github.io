@@ -9,12 +9,22 @@
     <title>lack of focus</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6F4GF7WMR1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6F4GF7WMR1');
+</script>
+
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 <script src="search_index.en.js"></script>
 <script src="elasticlunr.min.js"></script>
 <script src="search.js"></script>
@@ -58,17 +68,16 @@
         
         <div class="content post-summary">
             <p>Back in <a href="/action-planning-in-python">Action Planning in Python</a>, we wrote a simple A* based planner that could solve the problem of boiling water, given a scenario with initial conditions, actions the AI agent can take, and preconditions for those actions. The result was:</p>
-<pre style="background-color:#2b303b;">
-<code><span style="color:#c0c5ce;">Path:
-pick up pot
-move to sink
-turn on faucet
-wait
-turn off faucet
-move to stove
-put down pot
-turn on stove
-goal
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>Path:
+</span><span>pick up pot
+</span><span>move to sink
+</span><span>turn on faucet
+</span><span>wait
+</span><span>turn off faucet
+</span><span>move to stove
+</span><span>put down pot
+</span><span>turn on stove
+</span><span>goal
 </span></code></pre>
 <p>In Part 2, we're going to rewrite it in Rust.</p>
 
@@ -439,7 +448,7 @@ goal
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

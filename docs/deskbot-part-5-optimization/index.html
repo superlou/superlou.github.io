@@ -9,17 +9,17 @@
     <title>Deskbot Part 5, Optimization</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 
 
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.css">
-<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;katex.js"></script>
-<script defer src="https:&#x2F;&#x2F;www.louissimons.com&#x2F;auto-render.js"></script>
+<link rel="stylesheet" href="https://www.louissimons.com/katex.css">
+<script defer src="https://www.louissimons.com/katex.js"></script>
+<script defer src="https://www.louissimons.com/auto-render.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         renderMathInElement(document.body, {
@@ -68,352 +68,338 @@
         <p>Now that we have a basic inverse kinematic model, the sky's the limit.  Wait.  The horsepower of a Raspberry Pi Model A is a pretty good limit.  In this video, the eye vector is tracing out a circle, trying to hold 1 second per circle.</p>
 <span id="continue-reading"></span><iframe src="https://player.vimeo.com/video/176958711" width="640" height="480" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 <p>As you can see, it's not particulary smooth.  Here is the core logic of this behavior:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">behavior</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">pbs</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">full_ik</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">f_v</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">t</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">freq</span><span style="color:#c0c5ce;">):
-    start_time = time.</span><span style="color:#bf616a;">time</span><span style="color:#c0c5ce;">()
-    y_t = </span><span style="color:#d08770;">0.3 </span><span style="color:#c0c5ce;">* np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">2 </span><span style="color:#c0c5ce;">* np.pi * freq * t)
-    z_t = </span><span style="color:#d08770;">0.3 </span><span style="color:#c0c5ce;">* np.</span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">2 </span><span style="color:#c0c5ce;">* np.pi * freq * t)
-    e_v = np.</span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, y_t, z_t])
-    e_v = e_v / np.linalg.</span><span style="color:#bf616a;">norm</span><span style="color:#c0c5ce;">(e_v)
-
-    angles = full_ik.</span><span style="color:#bf616a;">solve</span><span style="color:#c0c5ce;">(e_v, f_v, height)
-    </span><span style="color:#bf616a;">set_servo_angles</span><span style="color:#c0c5ce;">(pbs, angles)
-
-    dt = time.</span><span style="color:#bf616a;">time</span><span style="color:#c0c5ce;">() - start_time
-    t += dt
-    </span><span style="color:#96b5b4;">print</span><span style="color:#c0c5ce;">(dt)
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">t
-
-</span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span style="color:#c0c5ce;">&quot;:
-    </span><span style="color:#d08770;">...
-    </span><span style="color:#c0c5ce;">t = </span><span style="color:#d08770;">0
-    </span><span style="color:#c0c5ce;">dt = </span><span style="color:#d08770;">0
-    </span><span style="color:#c0c5ce;">freq = </span><span style="color:#d08770;">1.0
-
-    </span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">:
-        </span><span style="color:#65737e;"># pbs = PiBlasterServos object
-        # full_ik = System IK solver
-        # f_v = &quot;ear&quot; vector, &quot;eye&quot; vector will be solved in the behavior
-        </span><span style="color:#c0c5ce;">t = </span><span style="color:#bf616a;">behavior</span><span style="color:#c0c5ce;">(pbs, full_ik, f_v, t, freq)
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">behavior</span><span>(</span><span style="color:#bf616a;">pbs</span><span>, </span><span style="color:#bf616a;">full_ik</span><span>, </span><span style="color:#bf616a;">f_v</span><span>, </span><span style="color:#bf616a;">t</span><span>, </span><span style="color:#bf616a;">freq</span><span>):
+</span><span>    start_time = time.</span><span style="color:#bf616a;">time</span><span>()
+</span><span>    y_t = </span><span style="color:#d08770;">0.3 </span><span>* np.</span><span style="color:#bf616a;">cos</span><span>(</span><span style="color:#d08770;">2 </span><span>* np.pi * freq * t)
+</span><span>    z_t = </span><span style="color:#d08770;">0.3 </span><span>* np.</span><span style="color:#bf616a;">sin</span><span>(</span><span style="color:#d08770;">2 </span><span>* np.pi * freq * t)
+</span><span>    e_v = np.</span><span style="color:#bf616a;">array</span><span>([</span><span style="color:#d08770;">1</span><span>, y_t, z_t])
+</span><span>    e_v = e_v / np.linalg.</span><span style="color:#bf616a;">norm</span><span>(e_v)
+</span><span>
+</span><span>    angles = full_ik.</span><span style="color:#bf616a;">solve</span><span>(e_v, f_v, height)
+</span><span>    </span><span style="color:#bf616a;">set_servo_angles</span><span>(pbs, angles)
+</span><span>
+</span><span>    dt = time.</span><span style="color:#bf616a;">time</span><span>() - start_time
+</span><span>    t += dt
+</span><span>    </span><span style="color:#96b5b4;">print</span><span>(dt)
+</span><span>    </span><span style="color:#b48ead;">return </span><span>t
+</span><span>
+</span><span style="color:#b48ead;">if </span><span>__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span>&quot;:
+</span><span>    </span><span style="color:#d08770;">...
+</span><span>    t = </span><span style="color:#d08770;">0
+</span><span>    dt = </span><span style="color:#d08770;">0
+</span><span>    freq = </span><span style="color:#d08770;">1.0
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span>:
+</span><span>        </span><span style="color:#65737e;"># pbs = PiBlasterServos object
+</span><span>        </span><span style="color:#65737e;"># full_ik = System IK solver
+</span><span>        </span><span style="color:#65737e;"># f_v = &quot;ear&quot; vector, &quot;eye&quot; vector will be solved in the behavior
+</span><span>        t = </span><span style="color:#bf616a;">behavior</span><span>(pbs, full_ik, f_v, t, freq)
 </span></code></pre>
 <p>We have to be careful when using <code>print</code> to report information while benchmarking, because it can be relatively slow itself and skew the results.  However, in my terminal, I'm seeing <code>dt</code>s on the order of 75 ms, which is slow enough that <code>print</code> isn't getting in the way.</p>
 <h2 id="finding-the-low-hanging-fruit">Finding the Low-Hanging Fruit</h2>
 <p>A big reason I am developing this robot in Python is that it lets me iterate rapidly in fairly readable code.  I don't want to waste my time prematurely optimizing functions that aren't having a significant impact on the run-time.</p>
 <p>To get a better idea of what's going on, we need to use Python's <a href="https://docs.python.org/2/library/profile.html">profile module</a>.  In this case, we're going to use <code>cProfile</code> which is recommended in most cases because it has significantly less overhead compared to the pure Python <code>profile</code> module.</p>
 <p>Modify the code slightly to profile <code>behavior</code>:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">cProfile </span><span style="color:#b48ead;">as </span><span style="color:#c0c5ce;">profile
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>cProfile </span><span style="color:#b48ead;">as </span><span>profile
 </span><span style="color:#d08770;">...
-
-</span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span style="color:#c0c5ce;">&quot;:
-    </span><span style="color:#d08770;">...
-    </span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span style="color:#c0c5ce;">:
-        profile.</span><span style="color:#bf616a;">run</span><span style="color:#c0c5ce;">(&quot;</span><span style="color:#a3be8c;">t = behavior(pbs, full_ik, f_v, t, freq)</span><span style="color:#c0c5ce;">&quot;)
+</span><span>
+</span><span style="color:#b48ead;">if </span><span>__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span>&quot;:
+</span><span>    </span><span style="color:#d08770;">...
+</span><span>    </span><span style="color:#b48ead;">while </span><span style="color:#d08770;">True</span><span>:
+</span><span>        profile.</span><span style="color:#bf616a;">run</span><span>(&quot;</span><span style="color:#a3be8c;">t = behavior(pbs, full_ik, f_v, t, freq)</span><span>&quot;)
 </span></code></pre>
 <p>Now, everytime the function is called, profiling information will be printed.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-bash" data-lang="bash"><span style="color:#c0c5ce;">         </span><span style="color:#bf616a;">327</span><span style="color:#c0c5ce;"> function calls in 0.157 seconds
-
-   </span><span style="color:#bf616a;">Ordered</span><span style="color:#c0c5ce;"> by: standard name
-
-   </span><span style="color:#bf616a;">ncalls</span><span style="color:#c0c5ce;">  tottime  percall  cumtime  percall filename:lineno(function)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.157    0.157 &lt;string&gt;:1(&lt;module&gt;)
-        </span><span style="color:#bf616a;">2</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 fromnumeric.py:1211(shape)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.002    0.002    0.126    0.126 full_ik.py:14(solve)
-        </span><span style="color:#bf616a;">4</span><span style="color:#c0c5ce;">    0.000    0.000    0.008    0.002 function_base.py:979(interp)
-        </span><span style="color:#bf616a;">3</span><span style="color:#c0c5ce;">    0.002    0.001    0.018    0.006 leg_ik.py:12(solve)
-        </span><span style="color:#bf616a;">3</span><span style="color:#c0c5ce;">    0.014    0.005    0.014    0.005 leg_ik.py:37(two_link_from_origin_ik)
-        </span><span style="color:#bf616a;">3</span><span style="color:#c0c5ce;">    0.000    0.000    0.001    0.000 leg_ik.py:5(__init__)
-        </span><span style="color:#bf616a;">2</span><span style="color:#c0c5ce;">    0.001    0.000    0.001    0.000 linalg.py:1840(norm)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.015    0.015 minpack.py:12(_check_func)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.096    0.096 minpack.py:30(fsolve)
-       </span><span style="color:#bf616a;">13</span><span style="color:#c0c5ce;">    0.006    0.000    0.011    0.001 numeric.py:1128(cross)
-       </span><span style="color:#bf616a;">30</span><span style="color:#c0c5ce;">    0.001    0.000    0.002    0.000 numeric.py:167(asarray)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 numeric.py:237(asanyarray)
-        </span><span style="color:#bf616a;">4</span><span style="color:#c0c5ce;">    0.000    0.000    0.028    0.007 pi_blaster_servos.py:20(__setitem__)
-       </span><span style="color:#bf616a;">11</span><span style="color:#c0c5ce;">    0.020    0.002    0.081    0.007 platform_ik.py:104(errors)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.001    0.001    0.002    0.002 platform_ik.py:21(rotation_matrix)
-       </span><span style="color:#bf616a;">33</span><span style="color:#c0c5ce;">    0.020    0.001    0.020    0.001 platform_ik.py:41(point_line_distance)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.002    0.002    0.103    0.103 platform_ik.py:63(solve)
-       </span><span style="color:#bf616a;">12</span><span style="color:#c0c5ce;">    0.019    0.002    0.039    0.003 platform_ik.py:8(rotate_vector)
-        </span><span style="color:#bf616a;">4</span><span style="color:#c0c5ce;">    0.000    0.000    0.008    0.002 servo.py:11(period_for_angle)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.001    0.001    0.028    0.028 servo_ik_benchmark.py:19(set_servo_angles)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.002    0.002    0.157    0.157 servo_ik_benchmark.py:27(behavior)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 shape_base.py:6(atleast_1d)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {any}
-        </span><span style="color:#bf616a;">4</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {isinstance}
-        </span><span style="color:#bf616a;">3</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {len}
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {math.cos}
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {math.sin}
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {math.sqrt}
-        </span><span style="color:#bf616a;">5</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">append</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">list</span><span style="color:#c0c5ce;">&#39; objects}
-        </span><span style="color:#bf616a;">6</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">astype</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span style="color:#c0c5ce;">&#39; objects}
-        </span><span style="color:#bf616a;">2</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">conj</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span style="color:#c0c5ce;">&#39; objects}
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">disable</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">_lsprof.Profiler</span><span style="color:#c0c5ce;">&#39; objects}
-        </span><span style="color:#bf616a;">4</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">format</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">str</span><span style="color:#c0c5ce;">&#39; objects}
-        </span><span style="color:#bf616a;">4</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">item</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span style="color:#c0c5ce;">&#39; objects}
-        </span><span style="color:#bf616a;">2</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">ravel</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span style="color:#c0c5ce;">&#39; objects}
-        </span><span style="color:#bf616a;">2</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">reduce</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ufunc</span><span style="color:#c0c5ce;">&#39; objects}
-       </span><span style="color:#bf616a;">26</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">swapaxes</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span style="color:#c0c5ce;">&#39; objects}
-        </span><span style="color:#bf616a;">4</span><span style="color:#c0c5ce;">    0.019    0.005    0.019    0.005 {method &#39;</span><span style="color:#a3be8c;">write</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">file</span><span style="color:#c0c5ce;">&#39; objects}
-        </span><span style="color:#bf616a;">3</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {min}
-       </span><span style="color:#bf616a;">43</span><span style="color:#c0c5ce;">    0.011    0.000    0.011    0.000 {numpy.core._dotblas.dot}
-       </span><span style="color:#bf616a;">69</span><span style="color:#c0c5ce;">    0.012    0.000    0.012    0.000 {numpy.core.multiarray.array}
-        </span><span style="color:#bf616a;">3</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {numpy.core.multiarray.zeros}
-        </span><span style="color:#bf616a;">4</span><span style="color:#c0c5ce;">    0.007    0.002    0.007    0.002 {numpy.lib._compiled_base.interp}
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {range}
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.014    0.014    0.081    0.081 {scipy.optimize._minpack._hybrd}
-        </span><span style="color:#bf616a;">2</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {time.time}
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span>         </span><span style="color:#bf616a;">327</span><span> function calls in 0.157 seconds
+</span><span>
+</span><span>   </span><span style="color:#bf616a;">Ordered</span><span> by: standard name
+</span><span>
+</span><span>   </span><span style="color:#bf616a;">ncalls</span><span>  tottime  percall  cumtime  percall filename:lineno(function)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.157    0.157 &lt;string&gt;:1(&lt;module&gt;)
+</span><span>        </span><span style="color:#bf616a;">2</span><span>    0.000    0.000    0.000    0.000 fromnumeric.py:1211(shape)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.002    0.002    0.126    0.126 full_ik.py:14(solve)
+</span><span>        </span><span style="color:#bf616a;">4</span><span>    0.000    0.000    0.008    0.002 function_base.py:979(interp)
+</span><span>        </span><span style="color:#bf616a;">3</span><span>    0.002    0.001    0.018    0.006 leg_ik.py:12(solve)
+</span><span>        </span><span style="color:#bf616a;">3</span><span>    0.014    0.005    0.014    0.005 leg_ik.py:37(two_link_from_origin_ik)
+</span><span>        </span><span style="color:#bf616a;">3</span><span>    0.000    0.000    0.001    0.000 leg_ik.py:5(__init__)
+</span><span>        </span><span style="color:#bf616a;">2</span><span>    0.001    0.000    0.001    0.000 linalg.py:1840(norm)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.015    0.015 minpack.py:12(_check_func)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.096    0.096 minpack.py:30(fsolve)
+</span><span>       </span><span style="color:#bf616a;">13</span><span>    0.006    0.000    0.011    0.001 numeric.py:1128(cross)
+</span><span>       </span><span style="color:#bf616a;">30</span><span>    0.001    0.000    0.002    0.000 numeric.py:167(asarray)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 numeric.py:237(asanyarray)
+</span><span>        </span><span style="color:#bf616a;">4</span><span>    0.000    0.000    0.028    0.007 pi_blaster_servos.py:20(__setitem__)
+</span><span>       </span><span style="color:#bf616a;">11</span><span>    0.020    0.002    0.081    0.007 platform_ik.py:104(errors)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.001    0.001    0.002    0.002 platform_ik.py:21(rotation_matrix)
+</span><span>       </span><span style="color:#bf616a;">33</span><span>    0.020    0.001    0.020    0.001 platform_ik.py:41(point_line_distance)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.002    0.002    0.103    0.103 platform_ik.py:63(solve)
+</span><span>       </span><span style="color:#bf616a;">12</span><span>    0.019    0.002    0.039    0.003 platform_ik.py:8(rotate_vector)
+</span><span>        </span><span style="color:#bf616a;">4</span><span>    0.000    0.000    0.008    0.002 servo.py:11(period_for_angle)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.001    0.001    0.028    0.028 servo_ik_benchmark.py:19(set_servo_angles)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.002    0.002    0.157    0.157 servo_ik_benchmark.py:27(behavior)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 shape_base.py:6(atleast_1d)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 {any}
+</span><span>        </span><span style="color:#bf616a;">4</span><span>    0.000    0.000    0.000    0.000 {isinstance}
+</span><span>        </span><span style="color:#bf616a;">3</span><span>    0.000    0.000    0.000    0.000 {len}
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 {math.cos}
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 {math.sin}
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 {math.sqrt}
+</span><span>        </span><span style="color:#bf616a;">5</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">append</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">list</span><span>&#39; objects}
+</span><span>        </span><span style="color:#bf616a;">6</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">astype</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span>&#39; objects}
+</span><span>        </span><span style="color:#bf616a;">2</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">conj</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span>&#39; objects}
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">disable</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">_lsprof.Profiler</span><span>&#39; objects}
+</span><span>        </span><span style="color:#bf616a;">4</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">format</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">str</span><span>&#39; objects}
+</span><span>        </span><span style="color:#bf616a;">4</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">item</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span>&#39; objects}
+</span><span>        </span><span style="color:#bf616a;">2</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">ravel</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span>&#39; objects}
+</span><span>        </span><span style="color:#bf616a;">2</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">reduce</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ufunc</span><span>&#39; objects}
+</span><span>       </span><span style="color:#bf616a;">26</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">swapaxes</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">numpy.ndarray</span><span>&#39; objects}
+</span><span>        </span><span style="color:#bf616a;">4</span><span>    0.019    0.005    0.019    0.005 {method &#39;</span><span style="color:#a3be8c;">write</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">file</span><span>&#39; objects}
+</span><span>        </span><span style="color:#bf616a;">3</span><span>    0.000    0.000    0.000    0.000 {min}
+</span><span>       </span><span style="color:#bf616a;">43</span><span>    0.011    0.000    0.011    0.000 {numpy.core._dotblas.dot}
+</span><span>       </span><span style="color:#bf616a;">69</span><span>    0.012    0.000    0.012    0.000 {numpy.core.multiarray.array}
+</span><span>        </span><span style="color:#bf616a;">3</span><span>    0.000    0.000    0.000    0.000 {numpy.core.multiarray.zeros}
+</span><span>        </span><span style="color:#bf616a;">4</span><span>    0.007    0.002    0.007    0.002 {numpy.lib._compiled_base.interp}
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 {range}
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.014    0.014    0.081    0.081 {scipy.optimize._minpack._hybrd}
+</span><span>        </span><span style="color:#bf616a;">2</span><span>    0.000    0.000    0.000    0.000 {time.time}
 </span></code></pre>
 <p>The function is now taking almost twice as long as it was before, which is due to the overhead of the profiler.  The column we're most interested in is &quot;tottime,&quot; which is the total amount of time spent in each function, not including function calls within it.  Functions that are called many times, &quot;ncalls,&quot; are and high &quot;tottime&quot; are really good candidates for optimization since small improvements in frequently called functions will add up.  <code>point_line_distance</code> and <code>rotate_vector</code> look like good candidates.  Since we have the benchmarking info from our target system, we can move back to a normal desktop PC to avoid having to develop over SSH.  Since my PC's a good deal faster than the RPi, we need a more aggressive test case:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">cProfile </span><span style="color:#b48ead;">as </span><span style="color:#c0c5ce;">profile
-</span><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">numpy </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">radians, array
-</span><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">kinematics.inverse.platform_ik </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">rotate_vector
-
-</span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span style="color:#c0c5ce;">&quot;:
-    e_v = </span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])
-    gy_v = </span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])
-    angle = </span><span style="color:#bf616a;">radians</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">)
-
-    profile.</span><span style="color:#bf616a;">run</span><span style="color:#c0c5ce;">(&quot;</span><span style="color:#a3be8c;">for i in range(10000): rotate_vector(e_v, gy_v, angle)</span><span style="color:#c0c5ce;">&quot;)
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>cProfile </span><span style="color:#b48ead;">as </span><span>profile
+</span><span style="color:#b48ead;">from </span><span>numpy </span><span style="color:#b48ead;">import </span><span>radians, array
+</span><span style="color:#b48ead;">from </span><span>kinematics.inverse.platform_ik </span><span style="color:#b48ead;">import </span><span>rotate_vector
+</span><span>
+</span><span style="color:#b48ead;">if </span><span>__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span>&quot;:
+</span><span>    e_v = </span><span style="color:#bf616a;">array</span><span>([</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">0</span><span>, </span><span style="color:#d08770;">0</span><span>])
+</span><span>    gy_v = </span><span style="color:#bf616a;">array</span><span>([</span><span style="color:#d08770;">0</span><span>, </span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">0</span><span>])
+</span><span>    angle = </span><span style="color:#bf616a;">radians</span><span>(</span><span style="color:#d08770;">10</span><span>)
+</span><span>
+</span><span>    profile.</span><span style="color:#bf616a;">run</span><span>(&quot;</span><span style="color:#a3be8c;">for i in range(10000): rotate_vector(e_v, gy_v, angle)</span><span>&quot;)
 </span></code></pre>
 <p>The profile output is:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-bash" data-lang="bash"><span style="color:#c0c5ce;">         </span><span style="color:#bf616a;">150003</span><span style="color:#c0c5ce;"> function calls in 0.382 seconds
-
-   </span><span style="color:#bf616a;">Ordered</span><span style="color:#c0c5ce;"> by: standard name
-
-   </span><span style="color:#bf616a;">ncalls</span><span style="color:#c0c5ce;">  tottime  percall  cumtime  percall filename:lineno(function)
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.007    0.007    0.382    0.382 &lt;string&gt;:1(&lt;module&gt;)
-    </span><span style="color:#bf616a;">30000</span><span style="color:#c0c5ce;">    0.028    0.000    0.028    0.000 numeric.py:1404(rollaxis)
-    </span><span style="color:#bf616a;">10000</span><span style="color:#c0c5ce;">    0.155    0.000    0.217    0.000 numeric.py:1553(cross)
-    </span><span style="color:#bf616a;">20000</span><span style="color:#c0c5ce;">    0.011    0.000    0.014    0.000 numeric.py:414(asarray)
-    </span><span style="color:#bf616a;">10000</span><span style="color:#c0c5ce;">    0.144    0.000    0.375    0.000 platform_ik.py:8(rotate_vector)
-    </span><span style="color:#bf616a;">20000</span><span style="color:#c0c5ce;">    0.002    0.000    0.002    0.000 {len}
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">disable</span><span style="color:#c0c5ce;">&#39; of &#39;</span><span style="color:#a3be8c;">_lsprof.Profiler</span><span style="color:#c0c5ce;">&#39; objects}
-    </span><span style="color:#bf616a;">30000</span><span style="color:#c0c5ce;">    0.010    0.000    0.010    0.000 {numpy.core.multiarray.array}
-    </span><span style="color:#bf616a;">10000</span><span style="color:#c0c5ce;">    0.014    0.000    0.014    0.000 {numpy.core.multiarray.dot}
-    </span><span style="color:#bf616a;">10000</span><span style="color:#c0c5ce;">    0.007    0.000    0.007    0.000 {numpy.core.multiarray.empty}
-    </span><span style="color:#bf616a;">10000</span><span style="color:#c0c5ce;">    0.003    0.000    0.003    0.000 {numpy.core.multiarray.promote_types}
-        </span><span style="color:#bf616a;">1</span><span style="color:#c0c5ce;">    0.000    0.000    0.000    0.000 {range}
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span>         </span><span style="color:#bf616a;">150003</span><span> function calls in 0.382 seconds
+</span><span>
+</span><span>   </span><span style="color:#bf616a;">Ordered</span><span> by: standard name
+</span><span>
+</span><span>   </span><span style="color:#bf616a;">ncalls</span><span>  tottime  percall  cumtime  percall filename:lineno(function)
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.007    0.007    0.382    0.382 &lt;string&gt;:1(&lt;module&gt;)
+</span><span>    </span><span style="color:#bf616a;">30000</span><span>    0.028    0.000    0.028    0.000 numeric.py:1404(rollaxis)
+</span><span>    </span><span style="color:#bf616a;">10000</span><span>    0.155    0.000    0.217    0.000 numeric.py:1553(cross)
+</span><span>    </span><span style="color:#bf616a;">20000</span><span>    0.011    0.000    0.014    0.000 numeric.py:414(asarray)
+</span><span>    </span><span style="color:#bf616a;">10000</span><span>    0.144    0.000    0.375    0.000 platform_ik.py:8(rotate_vector)
+</span><span>    </span><span style="color:#bf616a;">20000</span><span>    0.002    0.000    0.002    0.000 {len}
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 {method &#39;</span><span style="color:#a3be8c;">disable</span><span>&#39; of &#39;</span><span style="color:#a3be8c;">_lsprof.Profiler</span><span>&#39; objects}
+</span><span>    </span><span style="color:#bf616a;">30000</span><span>    0.010    0.000    0.010    0.000 {numpy.core.multiarray.array}
+</span><span>    </span><span style="color:#bf616a;">10000</span><span>    0.014    0.000    0.014    0.000 {numpy.core.multiarray.dot}
+</span><span>    </span><span style="color:#bf616a;">10000</span><span>    0.007    0.000    0.007    0.000 {numpy.core.multiarray.empty}
+</span><span>    </span><span style="color:#bf616a;">10000</span><span>    0.003    0.000    0.003    0.000 {numpy.core.multiarray.promote_types}
+</span><span>        </span><span style="color:#bf616a;">1</span><span>    0.000    0.000    0.000    0.000 {range}
 </span></code></pre>
 <p>The majority of our time is spent in <code>rotate_vector</code> and <code>cross</code>.  The later is part of numpy, so there's not much to do there.  The former we have some control over, but it's pretty much just Python assignments.</p>
 <h2 id="cython">Cython</h2>
 <p>Function <code>rotate_vector</code>'s pretty much as optimized as it gets in Python.  It's purely assignments, basic mathematics, and vector operations that are already delegated to a very fast library.  We're going to sidestep Python by using Cython, which is an &quot;optimising static compiler&quot; for both Python and a C-like Cython programming language.  This is not to be confused with CPython which is the popular implementation of the Python interpreter written in C, or compiling a C executible and calling it from python.  It is safest to think of Cython as a compiled language that has Python-like and C-like attributes, that is designed to interoperate with Python code while achieving compiled-language performance.</p>
 <p>To install Cython, we need a full C development environment.  On Linux for Python 2.7, this is straightforward, remembering to make sure we also install development headers for the libraries we're using:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-bash" data-lang="bash"><span style="color:#bf616a;">sudo</span><span style="color:#c0c5ce;"> apt-get install build-essential libpython2.7-dev
-</span><span style="color:#bf616a;">sudo</span><span style="color:#c0c5ce;"> pip install cython
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">sudo</span><span> apt-get install build-essential libpython2.7-dev
+</span><span style="color:#bf616a;">sudo</span><span> pip install cython
 </span></code></pre>
 <p>Since <code>rotate_vector</code> is a function we'll probably use somewhere else, we'll make a new file to hold it: <code>utilities.pyx</code>.  The &quot;x&quot; at the end signifies that this is a Cython file and not pure python.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">cython
-</span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">numpy </span><span style="color:#b48ead;">as </span><span style="color:#c0c5ce;">np
-
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">rotate_vector_fast</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">vector</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">axis</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">angle</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#65737e;">&quot;&quot;&quot;
-    Uses Rodrigues rotation formula
-    axis must be a normal vector
-    &quot;&quot;&quot;
-    </span><span style="color:#c0c5ce;">k = axis
-    v = vector
-    v_rot = (v * np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle) + np.</span><span style="color:#bf616a;">cross</span><span style="color:#c0c5ce;">(k, v) * np.</span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(angle) +
-             k * (np.</span><span style="color:#bf616a;">dot</span><span style="color:#c0c5ce;">(k, v)) * (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">- np.</span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle)))
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">v_rot
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>cython
+</span><span style="color:#b48ead;">import </span><span>numpy </span><span style="color:#b48ead;">as </span><span>np
+</span><span>
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">rotate_vector_fast</span><span>(</span><span style="color:#bf616a;">vector</span><span>, </span><span style="color:#bf616a;">axis</span><span>, </span><span style="color:#bf616a;">angle</span><span>):
+</span><span>    </span><span style="color:#65737e;">&quot;&quot;&quot;
+</span><span style="color:#65737e;">    Uses Rodrigues rotation formula
+</span><span style="color:#65737e;">    axis must be a normal vector
+</span><span style="color:#65737e;">    &quot;&quot;&quot;
+</span><span>    k = axis
+</span><span>    v = vector
+</span><span>    v_rot = (v * np.</span><span style="color:#bf616a;">cos</span><span>(angle) + np.</span><span style="color:#bf616a;">cross</span><span>(k, v) * np.</span><span style="color:#bf616a;">sin</span><span>(angle) +
+</span><span>             k * (np.</span><span style="color:#bf616a;">dot</span><span>(k, v)) * (</span><span style="color:#d08770;">1 </span><span>- np.</span><span style="color:#bf616a;">cos</span><span>(angle)))
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>v_rot
 </span></code></pre>
 <p>Modify <code>benchmark_rotate_vector.py</code> to build and call our new Cython file:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">cProfile </span><span style="color:#b48ead;">as </span><span style="color:#c0c5ce;">profile
-</span><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">numpy </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">radians, array
-</span><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">kinematics.inverse.platform_ik </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">rotate_vector
-</span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">pyximport
-pyximport.</span><span style="color:#bf616a;">install</span><span style="color:#c0c5ce;">()
-</span><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">kinematics.inverse.utilities </span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">rotate_vector_fast
-
-</span><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span style="color:#c0c5ce;">&quot;:
-    e_v = </span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])
-    gy_v = </span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">])
-    angle = </span><span style="color:#bf616a;">radians</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">10</span><span style="color:#c0c5ce;">)
-
-    profile.</span><span style="color:#bf616a;">run</span><span style="color:#c0c5ce;">(&quot;</span><span style="color:#a3be8c;">for i in range(10000): rotate_vector(e_v, gy_v, angle)</span><span style="color:#c0c5ce;">&quot;)
-    profile.</span><span style="color:#bf616a;">run</span><span style="color:#c0c5ce;">(&quot;</span><span style="color:#a3be8c;">for i in range(10000): rotate_vector_fast(e_v, gy_v, angle)</span><span style="color:#c0c5ce;">&quot;)
-
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>cProfile </span><span style="color:#b48ead;">as </span><span>profile
+</span><span style="color:#b48ead;">from </span><span>numpy </span><span style="color:#b48ead;">import </span><span>radians, array
+</span><span style="color:#b48ead;">from </span><span>kinematics.inverse.platform_ik </span><span style="color:#b48ead;">import </span><span>rotate_vector
+</span><span style="color:#b48ead;">import </span><span>pyximport
+</span><span>pyximport.</span><span style="color:#bf616a;">install</span><span>()
+</span><span style="color:#b48ead;">from </span><span>kinematics.inverse.utilities </span><span style="color:#b48ead;">import </span><span>rotate_vector_fast
+</span><span>
+</span><span style="color:#b48ead;">if </span><span>__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span>&quot;:
+</span><span>    e_v = </span><span style="color:#bf616a;">array</span><span>([</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">0</span><span>, </span><span style="color:#d08770;">0</span><span>])
+</span><span>    gy_v = </span><span style="color:#bf616a;">array</span><span>([</span><span style="color:#d08770;">0</span><span>, </span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">0</span><span>])
+</span><span>    angle = </span><span style="color:#bf616a;">radians</span><span>(</span><span style="color:#d08770;">10</span><span>)
+</span><span>
+</span><span>    profile.</span><span style="color:#bf616a;">run</span><span>(&quot;</span><span style="color:#a3be8c;">for i in range(10000): rotate_vector(e_v, gy_v, angle)</span><span>&quot;)
+</span><span>    profile.</span><span style="color:#bf616a;">run</span><span>(&quot;</span><span style="color:#a3be8c;">for i in range(10000): rotate_vector_fast(e_v, gy_v, angle)</span><span>&quot;)
+</span><span>
 </span></code></pre>
 <p>Running the benchmark, <code>rotate_vector</code> and <code>rotate_vector_fast</code> take 0.379 and 0.377 ms respectively.  That's not a great improvement.  What happened to our compiled-langauge performance?  To create sigificant improvements, Cython needs to have some more information.  Cython has a great utility to help track down where we're getting Python performance vs. C performance.  Running <code>cython -a code/kinematics/inverse/utilities.pyx</code> generates an HTML report, where lines highlighted in yellow have heavy Python overhead.</p>
 <p><img src="https://www.louissimons.com/deskbot-part-5-optimization/before_optimization_cropped.png" alt="Before optimization" /></p>
 <p>Lines 12 and 13 have a lot of overhead.  The first thing we can try is using native C calls for the trig. functions, rather than numpy's.</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">cython
-</span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">numpy </span><span style="color:#b48ead;">as </span><span style="color:#c0c5ce;">np
-
-
-cdef extern </span><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">math.h</span><span style="color:#c0c5ce;">&quot;:
-    double </span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(double x)
-    double </span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(double x)
-
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">rotate_vector_fast</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">vector</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">axis</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">angle</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#65737e;">&quot;&quot;&quot;
-    Uses Rodrigues rotation formula
-    axis must be a normal vector
-    &quot;&quot;&quot;
-    </span><span style="color:#c0c5ce;">k = axis
-    v = vector
-    v_rot = (v * </span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle) + np.</span><span style="color:#bf616a;">cross</span><span style="color:#c0c5ce;">(k, v) * </span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(angle) +
-             k * (np.</span><span style="color:#bf616a;">dot</span><span style="color:#c0c5ce;">(k, v)) * (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">- </span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle)))
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">v_rot
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>cython
+</span><span style="color:#b48ead;">import </span><span>numpy </span><span style="color:#b48ead;">as </span><span>np
+</span><span>
+</span><span>
+</span><span>cdef extern </span><span style="color:#b48ead;">from </span><span>&quot;</span><span style="color:#a3be8c;">math.h</span><span>&quot;:
+</span><span>    double </span><span style="color:#bf616a;">sin</span><span>(double x)
+</span><span>    double </span><span style="color:#bf616a;">cos</span><span>(double x)
+</span><span>
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">rotate_vector_fast</span><span>(</span><span style="color:#bf616a;">vector</span><span>, </span><span style="color:#bf616a;">axis</span><span>, </span><span style="color:#bf616a;">angle</span><span>):
+</span><span>    </span><span style="color:#65737e;">&quot;&quot;&quot;
+</span><span style="color:#65737e;">    Uses Rodrigues rotation formula
+</span><span style="color:#65737e;">    axis must be a normal vector
+</span><span style="color:#65737e;">    &quot;&quot;&quot;
+</span><span>    k = axis
+</span><span>    v = vector
+</span><span>    v_rot = (v * </span><span style="color:#bf616a;">cos</span><span>(angle) + np.</span><span style="color:#bf616a;">cross</span><span>(k, v) * </span><span style="color:#bf616a;">sin</span><span>(angle) +
+</span><span>             k * (np.</span><span style="color:#bf616a;">dot</span><span>(k, v)) * (</span><span style="color:#d08770;">1 </span><span>- </span><span style="color:#bf616a;">cos</span><span>(angle)))
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>v_rot
 </span></code></pre>
 <p>The <code>cdef</code> statement is used to declare C functions and variables.  The <code>cdef extern</code> at the beginning of the file is used to make the native C functions avaialable for use in both <code>def</code> functions (Python), and <code>cdef</code> functions (C).  Running the benchmark, the Cython implementation takes 0.347 seconds vs. 0.391 seconds for the native Python.  The profile information varies a bit on each run, but we're already seeing an improvement.</p>
 <p>Next we'll give Cython some information on our data types.  To use typing with the Numpy types, we need to <code>cimport</code> the module.  If you get errors about missing Numpy header files, you may need to modify benchmark file to look for the headers where they were actually installed to, rather than where Cython expects them by default:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#c0c5ce;">pyximport.</span><span style="color:#bf616a;">install</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">setup_args</span><span style="color:#c0c5ce;">={&#39;</span><span style="color:#a3be8c;">include_dirs</span><span style="color:#c0c5ce;">&#39;: numpy.</span><span style="color:#bf616a;">get_include</span><span style="color:#c0c5ce;">()})
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>pyximport.</span><span style="color:#bf616a;">install</span><span>(</span><span style="color:#bf616a;">setup_args</span><span>={&#39;</span><span style="color:#a3be8c;">include_dirs</span><span>&#39;: numpy.</span><span style="color:#bf616a;">get_include</span><span>()})
 </span></code></pre>
 <p>However, if we try to build the following, we'll get errors:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">cython
-</span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">numpy </span><span style="color:#b48ead;">as </span><span style="color:#c0c5ce;">np
-cimport numpy </span><span style="background-color:#bf616a;color:#2b303b;">as</span><span style="color:#c0c5ce;"> np
-
-cdef extern </span><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">math.h</span><span style="color:#c0c5ce;">&quot;:
-    double </span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(double x)
-    double </span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(double x)
-
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">rotate_vector_fast</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">ndarray</span><span style="color:#c0c5ce;">[</span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">float64_t</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">ndim</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">1</span><span style="background-color:#bf616a;color:#2b303b;">]</span><span style="color:#c0c5ce;"> vector,
-                       </span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">ndarray</span><span style="color:#c0c5ce;">[</span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">float64_t</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">ndim</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">1</span><span style="background-color:#bf616a;color:#2b303b;">]</span><span style="color:#c0c5ce;"> axis,
-                       </span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">float64_t angle</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#65737e;">&quot;&quot;&quot;
-    Uses Rodrigues rotation formula
-    axis must be a normal vector
-    &quot;&quot;&quot;
-    </span><span style="color:#c0c5ce;">k = &lt;np.float64_t*&gt; axis
-    v = &lt;np.float64_t*&gt; vector
-    v_rot = (v * </span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle) + np.</span><span style="color:#bf616a;">cross</span><span style="color:#c0c5ce;">(k, v) * </span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(angle) +
-             k * (np.</span><span style="color:#bf616a;">dot</span><span style="color:#c0c5ce;">(k, v)) * (</span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">- </span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle)))
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">v_rot
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>cython
+</span><span style="color:#b48ead;">import </span><span>numpy </span><span style="color:#b48ead;">as </span><span>np
+</span><span>cimport numpy </span><span style="background-color:#bf616a;color:#2b303b;">as</span><span> np
+</span><span>
+</span><span>cdef extern </span><span style="color:#b48ead;">from </span><span>&quot;</span><span style="color:#a3be8c;">math.h</span><span>&quot;:
+</span><span>    double </span><span style="color:#bf616a;">sin</span><span>(double x)
+</span><span>    double </span><span style="color:#bf616a;">cos</span><span>(double x)
+</span><span>
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">rotate_vector_fast</span><span>(</span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">ndarray</span><span>[</span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">float64_t</span><span>, </span><span style="color:#bf616a;">ndim</span><span>=</span><span style="color:#d08770;">1</span><span style="background-color:#bf616a;color:#2b303b;">]</span><span> vector,
+</span><span>                       </span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">ndarray</span><span>[</span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">float64_t</span><span>, </span><span style="color:#bf616a;">ndim</span><span>=</span><span style="color:#d08770;">1</span><span style="background-color:#bf616a;color:#2b303b;">]</span><span> axis,
+</span><span>                       </span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">float64_t angle</span><span>):
+</span><span>    </span><span style="color:#65737e;">&quot;&quot;&quot;
+</span><span style="color:#65737e;">    Uses Rodrigues rotation formula
+</span><span style="color:#65737e;">    axis must be a normal vector
+</span><span style="color:#65737e;">    &quot;&quot;&quot;
+</span><span>    k = &lt;np.float64_t*&gt; axis
+</span><span>    v = &lt;np.float64_t*&gt; vector
+</span><span>    v_rot = (v * </span><span style="color:#bf616a;">cos</span><span>(angle) + np.</span><span style="color:#bf616a;">cross</span><span>(k, v) * </span><span style="color:#bf616a;">sin</span><span>(angle) +
+</span><span>             k * (np.</span><span style="color:#bf616a;">dot</span><span>(k, v)) * (</span><span style="color:#d08770;">1 </span><span>- </span><span style="color:#bf616a;">cos</span><span>(angle)))
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>v_rot
 </span></code></pre>
 <p>For performance, we've converted the input vectors into floating point vectors with very little overhead.   Unfortunately, that means we no longer have access to the basic Numpy array mathematical helpers.  All of these math operations can be rewritten:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">cython
-</span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">numpy </span><span style="color:#b48ead;">as </span><span style="color:#c0c5ce;">np
-cimport numpy </span><span style="background-color:#bf616a;color:#2b303b;">as</span><span style="color:#c0c5ce;"> np
-
-
-cdef extern </span><span style="color:#b48ead;">from </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">math.h</span><span style="color:#c0c5ce;">&quot;:
-    double </span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(double x)
-    double </span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(double x)
-    double </span><span style="color:#bf616a;">sqrt</span><span style="color:#c0c5ce;">(double x)
-    double </span><span style="color:#96b5b4;">abs</span><span style="color:#c0c5ce;">(double x)
-
-
-</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">rotate_vector_fast</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">ndarray</span><span style="color:#c0c5ce;">[</span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">float64_t</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">ndim</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">1</span><span style="background-color:#bf616a;color:#2b303b;">]</span><span style="color:#c0c5ce;"> vector,
-                       </span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">ndarray</span><span style="color:#c0c5ce;">[</span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">float64_t</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">ndim</span><span style="color:#c0c5ce;">=</span><span style="color:#d08770;">1</span><span style="background-color:#bf616a;color:#2b303b;">]</span><span style="color:#c0c5ce;"> axis,
-                       </span><span style="color:#bf616a;">np</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">float64_t angle</span><span style="color:#c0c5ce;">):
-    </span><span style="color:#65737e;">&quot;&quot;&quot;
-    Uses Rodrigues rotation formula
-    axis must be a normal vector
-
-    Implements:
-    v_rot = (v * np.cos(angle) + np.cross(k, v) * np.sin(angle) +
-             k * (np.dot(k, v)) * (1 - np.cos(angle)))
-    &quot;&quot;&quot;
-
-    </span><span style="color:#c0c5ce;">v = &lt;np.float64_t*&gt; vector.data
-    k = &lt;np.float64_t*&gt; axis.data
-
-    </span><span style="color:#65737e;"># Cos-scaled component
-    </span><span style="color:#c0c5ce;">cdef np.float64_t[</span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">] cos_component
-    </span><span style="color:#bf616a;">copy3v</span><span style="color:#c0c5ce;">(cos_component, v)
-    </span><span style="color:#bf616a;">scale3v</span><span style="color:#c0c5ce;">(cos_component, </span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle))
-
-    </span><span style="color:#65737e;"># Cross component
-    </span><span style="color:#c0c5ce;">cdef np.float64_t[</span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">] k_cross_v
-    </span><span style="color:#bf616a;">cross3v</span><span style="color:#c0c5ce;">(k, v, k_cross_v)
-    </span><span style="color:#bf616a;">scale3v</span><span style="color:#c0c5ce;">(k_cross_v, </span><span style="color:#bf616a;">sin</span><span style="color:#c0c5ce;">(angle))
-
-    </span><span style="color:#65737e;"># Last component
-    </span><span style="color:#c0c5ce;">cdef np.float64_t[</span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">] last_component
-    </span><span style="color:#bf616a;">copy3v</span><span style="color:#c0c5ce;">(last_component, k)
-    </span><span style="color:#bf616a;">scale3v</span><span style="color:#c0c5ce;">(last_component, </span><span style="color:#bf616a;">dot3v</span><span style="color:#c0c5ce;">(k, v))
-    </span><span style="color:#bf616a;">scale3v</span><span style="color:#c0c5ce;">(last_component, </span><span style="color:#d08770;">1 </span><span style="color:#c0c5ce;">- </span><span style="color:#bf616a;">cos</span><span style="color:#c0c5ce;">(angle))
-
-    </span><span style="color:#65737e;"># Result
-    </span><span style="color:#c0c5ce;">cdef np.float64_t[</span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">] result
-    </span><span style="color:#bf616a;">copy3v</span><span style="color:#c0c5ce;">(result, cos_component)
-    </span><span style="color:#bf616a;">add3v</span><span style="color:#c0c5ce;">(result, k_cross_v)
-    </span><span style="color:#bf616a;">add3v</span><span style="color:#c0c5ce;">(result, last_component)
-
-    v_rot = np.</span><span style="color:#bf616a;">zeros</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">)
-    v_rot[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] = result[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">]
-    v_rot[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] = result[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">]
-    v_rot[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] = result[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">]
-
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">v_rot
-
-
-cdef np.float64_t </span><span style="color:#bf616a;">dot3v</span><span style="color:#c0c5ce;">(np.float64_t* a, np.float64_t* b):
-    </span><span style="color:#b48ead;">return </span><span style="color:#c0c5ce;">a[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] * b[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] + a[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] * b[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] + a[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] * b[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">]
-
-cdef void </span><span style="color:#bf616a;">cross3v</span><span style="color:#c0c5ce;">(np.float64_t* a, np.float64_t* b, np.float64_t* out):
-    out[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] = a[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] * b[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] - a[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] * b[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">]
-    out[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] = a[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] * b[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] - a[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] * b[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">]
-    out[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] = a[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] * b[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] - a[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] * b[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">]
-
-cdef void </span><span style="color:#bf616a;">scale3v</span><span style="color:#c0c5ce;">(np.float64_t* v, np.float64_t gain):
-    v[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] = v[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] * gain
-    v[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] = v[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] * gain
-    v[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] = v[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] * gain
-
-cdef void </span><span style="color:#bf616a;">copy3v</span><span style="color:#c0c5ce;">(np.float64_t* dest, np.float64_t* src):
-    dest[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] = src[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">]
-    dest[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] = src[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">]
-    dest[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] = src[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">]
-
-cdef void </span><span style="color:#bf616a;">add3v</span><span style="color:#c0c5ce;">(np.float64_t* accum, np.float64_t* delta):
-    accum[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] = accum[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">] + delta[</span><span style="color:#d08770;">0</span><span style="color:#c0c5ce;">]
-    accum[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] = accum[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">] + delta[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">]
-    accum[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] = accum[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">] + delta[</span><span style="color:#d08770;">2</span><span style="color:#c0c5ce;">]
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>cython
+</span><span style="color:#b48ead;">import </span><span>numpy </span><span style="color:#b48ead;">as </span><span>np
+</span><span>cimport numpy </span><span style="background-color:#bf616a;color:#2b303b;">as</span><span> np
+</span><span>
+</span><span>
+</span><span>cdef extern </span><span style="color:#b48ead;">from </span><span>&quot;</span><span style="color:#a3be8c;">math.h</span><span>&quot;:
+</span><span>    double </span><span style="color:#bf616a;">sin</span><span>(double x)
+</span><span>    double </span><span style="color:#bf616a;">cos</span><span>(double x)
+</span><span>    double </span><span style="color:#bf616a;">sqrt</span><span>(double x)
+</span><span>    double </span><span style="color:#96b5b4;">abs</span><span>(double x)
+</span><span>
+</span><span>
+</span><span style="color:#b48ead;">def </span><span style="color:#8fa1b3;">rotate_vector_fast</span><span>(</span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">ndarray</span><span>[</span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">float64_t</span><span>, </span><span style="color:#bf616a;">ndim</span><span>=</span><span style="color:#d08770;">1</span><span style="background-color:#bf616a;color:#2b303b;">]</span><span> vector,
+</span><span>                       </span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">ndarray</span><span>[</span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">float64_t</span><span>, </span><span style="color:#bf616a;">ndim</span><span>=</span><span style="color:#d08770;">1</span><span style="background-color:#bf616a;color:#2b303b;">]</span><span> axis,
+</span><span>                       </span><span style="color:#bf616a;">np</span><span>.</span><span style="color:#bf616a;">float64_t angle</span><span>):
+</span><span>    </span><span style="color:#65737e;">&quot;&quot;&quot;
+</span><span style="color:#65737e;">    Uses Rodrigues rotation formula
+</span><span style="color:#65737e;">    axis must be a normal vector
+</span><span style="color:#65737e;">
+</span><span style="color:#65737e;">    Implements:
+</span><span style="color:#65737e;">    v_rot = (v * np.cos(angle) + np.cross(k, v) * np.sin(angle) +
+</span><span style="color:#65737e;">             k * (np.dot(k, v)) * (1 - np.cos(angle)))
+</span><span style="color:#65737e;">    &quot;&quot;&quot;
+</span><span>
+</span><span>    v = &lt;np.float64_t*&gt; vector.data
+</span><span>    k = &lt;np.float64_t*&gt; axis.data
+</span><span>
+</span><span>    </span><span style="color:#65737e;"># Cos-scaled component
+</span><span>    cdef np.float64_t[</span><span style="color:#d08770;">3</span><span>] cos_component
+</span><span>    </span><span style="color:#bf616a;">copy3v</span><span>(cos_component, v)
+</span><span>    </span><span style="color:#bf616a;">scale3v</span><span>(cos_component, </span><span style="color:#bf616a;">cos</span><span>(angle))
+</span><span>
+</span><span>    </span><span style="color:#65737e;"># Cross component
+</span><span>    cdef np.float64_t[</span><span style="color:#d08770;">3</span><span>] k_cross_v
+</span><span>    </span><span style="color:#bf616a;">cross3v</span><span>(k, v, k_cross_v)
+</span><span>    </span><span style="color:#bf616a;">scale3v</span><span>(k_cross_v, </span><span style="color:#bf616a;">sin</span><span>(angle))
+</span><span>
+</span><span>    </span><span style="color:#65737e;"># Last component
+</span><span>    cdef np.float64_t[</span><span style="color:#d08770;">3</span><span>] last_component
+</span><span>    </span><span style="color:#bf616a;">copy3v</span><span>(last_component, k)
+</span><span>    </span><span style="color:#bf616a;">scale3v</span><span>(last_component, </span><span style="color:#bf616a;">dot3v</span><span>(k, v))
+</span><span>    </span><span style="color:#bf616a;">scale3v</span><span>(last_component, </span><span style="color:#d08770;">1 </span><span>- </span><span style="color:#bf616a;">cos</span><span>(angle))
+</span><span>
+</span><span>    </span><span style="color:#65737e;"># Result
+</span><span>    cdef np.float64_t[</span><span style="color:#d08770;">3</span><span>] result
+</span><span>    </span><span style="color:#bf616a;">copy3v</span><span>(result, cos_component)
+</span><span>    </span><span style="color:#bf616a;">add3v</span><span>(result, k_cross_v)
+</span><span>    </span><span style="color:#bf616a;">add3v</span><span>(result, last_component)
+</span><span>
+</span><span>    v_rot = np.</span><span style="color:#bf616a;">zeros</span><span>(</span><span style="color:#d08770;">3</span><span>)
+</span><span>    v_rot[</span><span style="color:#d08770;">0</span><span>] = result[</span><span style="color:#d08770;">0</span><span>]
+</span><span>    v_rot[</span><span style="color:#d08770;">1</span><span>] = result[</span><span style="color:#d08770;">1</span><span>]
+</span><span>    v_rot[</span><span style="color:#d08770;">2</span><span>] = result[</span><span style="color:#d08770;">2</span><span>]
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">return </span><span>v_rot
+</span><span>
+</span><span>
+</span><span>cdef np.float64_t </span><span style="color:#bf616a;">dot3v</span><span>(np.float64_t* a, np.float64_t* b):
+</span><span>    </span><span style="color:#b48ead;">return </span><span>a[</span><span style="color:#d08770;">0</span><span>] * b[</span><span style="color:#d08770;">0</span><span>] + a[</span><span style="color:#d08770;">1</span><span>] * b[</span><span style="color:#d08770;">1</span><span>] + a[</span><span style="color:#d08770;">2</span><span>] * b[</span><span style="color:#d08770;">2</span><span>]
+</span><span>
+</span><span>cdef void </span><span style="color:#bf616a;">cross3v</span><span>(np.float64_t* a, np.float64_t* b, np.float64_t* out):
+</span><span>    out[</span><span style="color:#d08770;">0</span><span>] = a[</span><span style="color:#d08770;">1</span><span>] * b[</span><span style="color:#d08770;">2</span><span>] - a[</span><span style="color:#d08770;">2</span><span>] * b[</span><span style="color:#d08770;">1</span><span>]
+</span><span>    out[</span><span style="color:#d08770;">1</span><span>] = a[</span><span style="color:#d08770;">2</span><span>] * b[</span><span style="color:#d08770;">0</span><span>] - a[</span><span style="color:#d08770;">0</span><span>] * b[</span><span style="color:#d08770;">2</span><span>]
+</span><span>    out[</span><span style="color:#d08770;">2</span><span>] = a[</span><span style="color:#d08770;">0</span><span>] * b[</span><span style="color:#d08770;">1</span><span>] - a[</span><span style="color:#d08770;">1</span><span>] * b[</span><span style="color:#d08770;">0</span><span>]
+</span><span>
+</span><span>cdef void </span><span style="color:#bf616a;">scale3v</span><span>(np.float64_t* v, np.float64_t gain):
+</span><span>    v[</span><span style="color:#d08770;">0</span><span>] = v[</span><span style="color:#d08770;">0</span><span>] * gain
+</span><span>    v[</span><span style="color:#d08770;">1</span><span>] = v[</span><span style="color:#d08770;">1</span><span>] * gain
+</span><span>    v[</span><span style="color:#d08770;">2</span><span>] = v[</span><span style="color:#d08770;">2</span><span>] * gain
+</span><span>
+</span><span>cdef void </span><span style="color:#bf616a;">copy3v</span><span>(np.float64_t* dest, np.float64_t* src):
+</span><span>    dest[</span><span style="color:#d08770;">0</span><span>] = src[</span><span style="color:#d08770;">0</span><span>]
+</span><span>    dest[</span><span style="color:#d08770;">1</span><span>] = src[</span><span style="color:#d08770;">1</span><span>]
+</span><span>    dest[</span><span style="color:#d08770;">2</span><span>] = src[</span><span style="color:#d08770;">2</span><span>]
+</span><span>
+</span><span>cdef void </span><span style="color:#bf616a;">add3v</span><span>(np.float64_t* accum, np.float64_t* delta):
+</span><span>    accum[</span><span style="color:#d08770;">0</span><span>] = accum[</span><span style="color:#d08770;">0</span><span>] + delta[</span><span style="color:#d08770;">0</span><span>]
+</span><span>    accum[</span><span style="color:#d08770;">1</span><span>] = accum[</span><span style="color:#d08770;">1</span><span>] + delta[</span><span style="color:#d08770;">1</span><span>]
+</span><span>    accum[</span><span style="color:#d08770;">2</span><span>] = accum[</span><span style="color:#d08770;">2</span><span>] + delta[</span><span style="color:#d08770;">2</span><span>]
 </span></code></pre>
 <p>Because we are working with vectors of a known, fixed length, rewritting the vector functions is straightfoward, if not elegant.  In order to get this to run, though, the benchmark must be modified:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span style="color:#c0c5ce;">&quot;:
-    e_v = </span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1.</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0.</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0.</span><span style="color:#c0c5ce;">])
-    gy_v = </span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">0.</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1.</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0.</span><span style="color:#c0c5ce;">])
-    angle = </span><span style="color:#bf616a;">radians</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">10.</span><span style="color:#c0c5ce;">)
-
-	...
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">if </span><span>__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span>&quot;:
+</span><span>    e_v = </span><span style="color:#bf616a;">array</span><span>([</span><span style="color:#d08770;">1.</span><span>, </span><span style="color:#d08770;">0.</span><span>, </span><span style="color:#d08770;">0.</span><span>])
+</span><span>    gy_v = </span><span style="color:#bf616a;">array</span><span>([</span><span style="color:#d08770;">0.</span><span>, </span><span style="color:#d08770;">1.</span><span>, </span><span style="color:#d08770;">0.</span><span>])
+</span><span>    angle = </span><span style="color:#bf616a;">radians</span><span>(</span><span style="color:#d08770;">10.</span><span>)
+</span><span>
+</span><span>	</span><span style="color:#d08770;">...
 </span></code></pre>
 <p>It's a subtle change.  All of the input varaibles now have a trailing &quot;.&quot; to make sure Python represents them as a floating point number.  If we were pass in an integer value, Python would pass a &quot;long&quot; type to Cython.  Since we've optimized out the checks and conversions of types, this would crash the program.  For this inconvenience, though, we are rewarded by a large performance improvement: 26 ms in Cython vs. 367 ms in Python.  That's better than an order of magnitude improvement!  Rerunning <code>cython -a</code>, the mathematics no longer have significant overhead:</p>
 <p><img src="https://www.louissimons.com/deskbot-part-5-optimization/after_optimization_cropped.png" alt="After optimization" /></p>
 <p>We still have a little bit of overhead in our conversion from C types back to a Numpy array, but we've hit the low-hanging fruit in this function.  This is just scratching the surface of what Cython can do.</p>
 <h2 id="back-to-the-rpi">Back to the RPi</h2>
 <p>Let's get our benchmark running on the RPi.  This requires a little leg-work, as the version of Cython pre-built for the RPi is too old.  First, I had to increase the size of the swap file to 1 GB by changing <code>/etc/dphys-swapfile</code> to have <code>CONF_SWAPFILE=1024</code>.  Then restart the swap file using the following:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-bash" data-lang="bash"><span style="color:#bf616a;">/etc/init.d/dphys-swapfile</span><span style="color:#c0c5ce;"> stop
-</span><span style="color:#bf616a;">/etc/init.d/dphys-swapfile</span><span style="color:#c0c5ce;"> start
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">/etc/init.d/dphys-swapfile</span><span> stop
+</span><span style="color:#bf616a;">/etc/init.d/dphys-swapfile</span><span> start
 </span></code></pre>
 <p>I was then able to build and install Cython using <code>sudo pip install cython</code>, though it took over an hour.</p>
 <p>Before we run it on the more limited hardware, we want to make sure that the number of calls to each function-under-test is more conservative.  On my original RPi hardware, I only performed 100 calls for each: 22 ms in Cython and 346 ms in Python.  Although the overall performance is 100 times slower than my desktop, we are still getting a huge speed boost from Cython.</p>
 <p>For convenience, I modified the benchmark to accept an argument with the number of times it should be run to make going between my desktop and RPi easier:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-python" data-lang="python"><span style="color:#b48ead;">if </span><span style="color:#c0c5ce;">__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span style="color:#c0c5ce;">&quot;:
-    e_v = </span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">1.</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0.</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0.</span><span style="color:#c0c5ce;">])
-    gy_v = </span><span style="color:#bf616a;">array</span><span style="color:#c0c5ce;">([</span><span style="color:#d08770;">0.</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">1.</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">0.</span><span style="color:#c0c5ce;">])
-    angle = </span><span style="color:#bf616a;">radians</span><span style="color:#c0c5ce;">(</span><span style="color:#d08770;">10.</span><span style="color:#c0c5ce;">)
-
-    </span><span style="color:#b48ead;">if </span><span style="color:#96b5b4;">len</span><span style="color:#c0c5ce;">(sys.argv) &gt; </span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">:
-        runs = </span><span style="color:#bf616a;">int</span><span style="color:#c0c5ce;">(sys.argv[</span><span style="color:#d08770;">1</span><span style="color:#c0c5ce;">])
-    </span><span style="color:#b48ead;">else</span><span style="color:#c0c5ce;">:
-        runs = </span><span style="color:#d08770;">1
-
-    </span><span style="color:#c0c5ce;">profile.</span><span style="color:#bf616a;">run</span><span style="color:#c0c5ce;">(&quot;</span><span style="color:#a3be8c;">for i in range(runs): rotate_vector(e_v, gy_v, angle)</span><span style="color:#c0c5ce;">&quot;)
-    profile.</span><span style="color:#bf616a;">run</span><span style="color:#c0c5ce;">(&quot;</span><span style="color:#a3be8c;">for i in range(runs): rotate_vector_fast(e_v, gy_v, angle)</span><span style="color:#c0c5ce;">&quot;)
-</span></code></pre><h2 id="conclusions">Conclusions</h2>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">if </span><span>__name__ == &quot;</span><span style="color:#a3be8c;">__main__</span><span>&quot;:
+</span><span>    e_v = </span><span style="color:#bf616a;">array</span><span>([</span><span style="color:#d08770;">1.</span><span>, </span><span style="color:#d08770;">0.</span><span>, </span><span style="color:#d08770;">0.</span><span>])
+</span><span>    gy_v = </span><span style="color:#bf616a;">array</span><span>([</span><span style="color:#d08770;">0.</span><span>, </span><span style="color:#d08770;">1.</span><span>, </span><span style="color:#d08770;">0.</span><span>])
+</span><span>    angle = </span><span style="color:#bf616a;">radians</span><span>(</span><span style="color:#d08770;">10.</span><span>)
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">if </span><span style="color:#96b5b4;">len</span><span>(sys.argv) &gt; </span><span style="color:#d08770;">1</span><span>:
+</span><span>        runs = </span><span style="color:#bf616a;">int</span><span>(sys.argv[</span><span style="color:#d08770;">1</span><span>])
+</span><span>    </span><span style="color:#b48ead;">else</span><span>:
+</span><span>        runs = </span><span style="color:#d08770;">1
+</span><span>
+</span><span>    profile.</span><span style="color:#bf616a;">run</span><span>(&quot;</span><span style="color:#a3be8c;">for i in range(runs): rotate_vector(e_v, gy_v, angle)</span><span>&quot;)
+</span><span>    profile.</span><span style="color:#bf616a;">run</span><span>(&quot;</span><span style="color:#a3be8c;">for i in range(runs): rotate_vector_fast(e_v, gy_v, angle)</span><span>&quot;)
+</span></code></pre>
+<h2 id="conclusions">Conclusions</h2>
 <p>After repeating this process on a number of other functions in the inverse kinematics, there are signicant improvements.  Running <code>servo_ik_benchmark.py</code> now only takes 44 ms compared to 157 ms from when we stared.  After removing the profiling overhead, the printed <code>dt</code> is around 36 ms, less than half of what it was previously.  The following video shows the robot after optimization.</p>
 <iframe src="https://player.vimeo.com/video/176982689" width="640" height="480" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 <p>While Python has significant challenges in real-time systems, the ability to write high-level code and then dive into optimization only when necessary is hard to over-emphasis for robotics applications.  Where other languages allow bindings to C libraries, Cython is a really cool system for not making you switch tool-chains mid-project.</p>
@@ -449,7 +435,7 @@ cdef void </span><span style="color:#bf616a;">add3v</span><span style="color:#c0
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

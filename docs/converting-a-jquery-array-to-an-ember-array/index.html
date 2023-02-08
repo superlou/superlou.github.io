@@ -9,12 +9,12 @@
     <title>Converting a jQuery array to an Ember array</title>
     <meta name="description" content="">
 
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;main.css">
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
 
     
 
     
-<link rel="stylesheet" href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;style.css">
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
 
 
 </head>
@@ -54,8 +54,7 @@
 </blockquote>
 <span id="continue-reading"></span>
 <p>Ember.js is incorporating more UI abilities natively every day, but for now there’s a lot of functionality provided by jQueryUI that is nice to take advantage of.  In order to convert the result of a jQuery selector or other array-like jQuery object, use the following:</p>
-<pre style="background-color:#2b303b;">
-<code class="language-js" data-lang="js"><span style="color:#bf616a;">properEmberArray </span><span style="color:#c0c5ce;">= </span><span style="color:#bf616a;">Ember</span><span style="color:#c0c5ce;">.</span><span style="color:#8fa1b3;">A</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">$</span><span style="color:#c0c5ce;">.</span><span style="color:#8fa1b3;">makeArray</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">jQueryArrayLike</span><span style="color:#c0c5ce;">));
+<pre data-lang="js" style="background-color:#2b303b;color:#c0c5ce;" class="language-js "><code class="language-js" data-lang="js"><span style="color:#bf616a;">properEmberArray </span><span>= </span><span style="color:#bf616a;">Ember</span><span>.</span><span style="color:#8fa1b3;">A</span><span>(</span><span style="color:#bf616a;">$</span><span>.</span><span style="color:#8fa1b3;">makeArray</span><span>(</span><span style="color:#bf616a;">jQueryArrayLike</span><span>));
 </span></code></pre>
 <p>Sorry if this is obvious, but it gave me some grief before I realized that I was calling map on a jQuery object and not a fully fledged Ember Array.</p>
 
@@ -86,7 +85,7 @@
         </main>
         <footer>
             <p>
-                © lack of focus 2021<br>
+                © lack of focus 2023<br>
                 Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
             </p>
             <p>

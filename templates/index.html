@@ -1,6 +1,16 @@
 {% extends "anpu/templates/index.html" %}
 
 {% block extra_head %}
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6F4GF7WMR1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6F4GF7WMR1');
+</script>
+
 <link rel="stylesheet" href="{{ get_url(path="style.css", trailing_slash=false) }}">
 <script src="search_index.en.js"></script>
 <script src="elasticlunr.min.js"></script>
