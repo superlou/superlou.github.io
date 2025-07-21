@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>Assessing Execution Risk</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="https://www.louissimons.com/main.css">
+
+    
+
+    
+<link rel="stylesheet" href="https://www.louissimons.com/style.css">
+
+
+</head>
+<body>
+    <a class="skip-main" href="#main">Skip to content</a>
+    <div class="container">
+        <header> 
+            <h1 class="site-header">
+                <a href="https:&#x2F;&#x2F;www.louissimons.com">lack of focus</a>
+            </h1>
+            <nav>
+                
+
+
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;about&#x2F;">About</a>
+
+
+<a  href="https:&#x2F;&#x2F;www.louissimons.com&#x2F;fta-js">FTA</a>
+
+
+<div class="search-container">
+  <input id="search" type="search" placeholder="🔎">
+  <div class="search-results" style="display: none;">
+    <div class="search-results__items"></div>
+  </div>
+</div>
+
+            </nav>
+        </header>
+        <main id="main" tabindex="-1">
+            
+
+<article class="post">
+    <header>
+        <h1>Assessing Execution Risk</h1>
+    </header>
+    <div class="content">
+        <p>Your deliverables are sliding. You rebaselined and the team looks busy, but it's still moving right half a day, every day. Or management approved your new charter, the work breakdown was thorough, dependencies were set, and a month in, the <a href="https://en.wikipedia.org/wiki/Earned_value_management#Cost_performance_index_(CPI)">CPI</a> is 0.5. You and your team aren't executing.</p>
+<p><a href="https://en.wikipedia.org/wiki/Risk_register">Risk registers</a> document the likelihood, severity, and mitigations for risks to a specific project. They can be supported by a <a href="https://en.wikipedia.org/wiki/Risk_matrix">probability/impact matrix</a> to prioritize the register. <a href="https://en.wikipedia.org/wiki/Technology_readiness_level">Technical readiness level</a> can be used to assess the maturity of a technology before you commit that this project will be a cakewalk. However, these are mostly looking at a project in particular, require a deep-dive into the solution, or require a crystal ball.</p>
+<p>How can I compare multiple very different projects for their &quot;execution risk,&quot; the low/medium/high likelihood that the project will not happen as expected?</p>
+<h1 id="objective">Objective</h1>
+<p>Let's make a tool for estimating execution risk that is simple enough to use in the germ-of-an-idea phase but is still useful for communication. Especially, we want a tool that can visualize a portfolio of projects and identify why one project is succeeding while another flounders. The tool should predict fires before they happen and help prioritize fire extinguishers when they do.</p>
+<h1 id="resource-control">Resource Control</h1>
+<p>I'm lumping everything to do with personnel, equipment, and capital into a single &quot;resource control&quot; scale. Since not approving purchases orders is a black/white decision from upper management, that is already simple to communicate. Personnel are a bigger discussion gap.</p>
+<p>From most problematic to best-case scenario, the scale goes:</p>
+<ol>
+<li>Begging for scraps</li>
+</ol>
+<p>The dev team said the fires on Project X should be put out before you need them, so don't worry. I'm pretty sure we have leftover hardware from Project Y that's compatible, so you won't need to buy new.</p>
+<ol start="2">
+<li>The usual suspects</li>
+</ol>
+<p>Real names are assigned to your team and lab benches are cleared and ready. Yeah, most of those names are also on Jane's team, but nobody is over allocated. They've been with the organization a few years and their titles match the tasks. They've dealt with conflicts before.</p>
+<ol start="3">
+<li>Genie of the lamp</li>
+</ol>
+<p>Your team enjoys performing magic, and they can only do it for you.</p>
+<h1 id="scope-control">Scope Control</h1>
+<p>Again, we'll make a simple scale that is all gut feeling and no microscopy.</p>
+<ol>
+<li>What are we even doing?</li>
+</ol>
+<p>Kinda feeling it out as we go, you know? I've heard of other companies using this toolchain. How hard could it be? We'll rebuild the schedule as we learn more.</p>
+<ol start="2">
+<li>We bought a zoo</li>
+</ol>
+<p>This isn't as bad as it sounds, and I'd argue this is typical for many successful projects. You know what you want, the basics are clear and researchable. There are people with expertise that can fill in the gaps if we struggle. However, key stakeholders are willing to throw poo.</p>
+<ol start="3">
+<li>Stone tablets</li>
+</ol>
+<p>There are clearly defined (for the sake of metaphor) rules dropped in your lap, and the customer is just as afraid of being struck by lightning for deviating as you are.</p>
+<h1 id="the-playing-field">The Playing Field</h1>
+<p>Taking the two axes, the result is:</p>
+<p><img src="https://www.louissimons.com/execution-risk/chart.png" alt="Execution risk chart" /></p>
+<ul>
+<li>Low execution risk - The project is expected achieve the goals of the charter on the scheduled dates.</li>
+<li>Medium execution risk - The project is expected to get there and will work through uncomfortable bumps along the way.</li>
+<li>High execution risk - The project is expected to severely overrun costs and schedules. There might be big scope impacts. The bruising will be painful and the project might fail.</li>
+</ul>
+<p>And this how it shakes out:</p>
+<ul>
+<li>1, 2, 3: You are in the bottom row, and it <em>always</em> goes off the rails. You can't execute without a team.</li>
+<li>4: Even if you have a team, they won't succeed if the goalposts aren't there.</li>
+<li>5, 6: a typical organization team in a typical organization project should have the benefit of the doubt, but a watchful eye.</li>
+<li>7: The right people find a way to succeed, as often as not.</li>
+<li>8: Even the best people can be derailed by indeterminate or changing scope.</li>
+<li>9: Wouldn't this be nice?</li>
+</ul>
+<p>Is this based on cuantitative data or rigorous first principles? Not really. But take the project you're currently managed and put it on the grid. See how it feels. Put another project in the organization on the grid and look at the relationship. Periodically re-evaluate if you still are in the box you think you are, and what you can do to move up and to the right.</p>
+
+    </div>
+
+    
+    <div class="article-info">
+        
+        <div class="article-date">20 July 2025</div>
+        
+        <div class="article-taxonomies">
+            
+            
+                <ul class="article-tags">
+                    
+                    <li><a href="https://www.louissimons.com/tags/project-management/">#project management</a></li>
+                    
+                </ul>
+            
+        </div>
+    </div>
+
+</article>
+
+
+        </main>
+        <footer>
+            <p>
+                © lack of focus 2025<br>
+                Powered by <a target="_blank" href="https://getzola.org/">Zola</a>, Theme <a target="_blank" href="https://github.com/zbrox/anpu-zola-theme">Anpu</a>.
+            </p>
+            <p>
+                
+                
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
