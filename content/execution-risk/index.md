@@ -5,7 +5,9 @@ date = 2025-07-20
 tags = ["project management"]
 +++
 
-Your deliverables are sliding. You rebaselined and the team looks busy, but it's still moving right half a day, every day. Or management approved your new charter, the work breakdown was thorough, dependencies were set, and a month in, the [CPI](https://en.wikipedia.org/wiki/Earned_value_management#Cost_performance_index_(CPI)) is 0.5. You and your team aren't executing.
+Your deliverables are sliding. You rebaselined and the team looks busy, but it's still moving right half a day, every day. Or management approved your new charter, the work breakdown was thorough, dependencies were set, and a month in, the [CPI](https://en.wikipedia.org/wiki/Earned_value_management#Cost_performance_index_(CPI)) is 0.5. You and your team aren't executing. What was the risk we missed?
+
+<!-- more -->
 
 [Risk registers](https://en.wikipedia.org/wiki/Risk_register) document the likelihood, severity, and mitigations for risks to a specific project. They can be supported by a [probability/impact matrix](https://en.wikipedia.org/wiki/Risk_matrix) to prioritize the register. [Technical readiness level](https://en.wikipedia.org/wiki/Technology_readiness_level) can be used to assess the maturity of a technology before you commit that this project will be a cakewalk. However, these are mostly looking at a project in particular, require a deep-dive into the solution, or require a crystal ball.
 
